@@ -1,6 +1,13 @@
 "use strict";
 
+import { Connessione } from "../Connessione";
+
 let partiteDisponibili = []; // Array per i codici delle partite disponibili
+
+document.addEventListener("DOMContentLoaded", () => {
+    const createGameButton = document.getElementById("createGameButton");
+    createGameButton.addEventListener("click", createNewGame);
+});
 
 // Funzione per inizializzare le partite disponibili
 function initPartite() {
@@ -45,6 +52,8 @@ function mostraNomeUtente() {
 }
 
 function createNewGame() {
+    console.log("Creazione di una nuova partita...");
+    Connessione.sendMessage(Connessione.createSocket(), "Crea nuova partita");
     alert("Creazione di una nuova partita!");
     // Qui puoi aggiungere la logica per la creazione di una nuova partita.
 }
@@ -54,4 +63,5 @@ function joinGame(gameId) {
     // Qui puoi aggiungere la logica per partecipare alla partita con ID specifico.
 }
 
+window.createNewGame = createNewGame;
 document.addEventListener("DOMContentLoaded", initPartite);

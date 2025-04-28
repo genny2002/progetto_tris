@@ -1,11 +1,11 @@
-const net = require('net');
+import { Socket } from 'net';
 
 const HOST = '127.0.0.1';
 const PORT = 8080;
 const message = 'Hello from client';
 
 // Creazione del client
-const client = new net.Socket();
+const client = new Socket();
 
 // Connessione al server
 client.connect(PORT, HOST, () => {

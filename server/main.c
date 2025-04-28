@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 
 int main() {
+    printf("Server started...\n");
     int sockfd, new_socket;
     int opt = 1;
     char buffer[1024] = {0};
