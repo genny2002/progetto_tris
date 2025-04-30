@@ -4,11 +4,6 @@ import { Connessione } from "../Connessione";
 
 let partiteDisponibili = []; // Array per i codici delle partite disponibili
 
-document.addEventListener("DOMContentLoaded", () => {
-    const createGameButton = document.getElementById("createGameButton");
-    createGameButton.addEventListener("click", createNewGame);
-});
-
 // Funzione per inizializzare le partite disponibili
 function initPartite() {
     partiteDisponibili = [129, 124, 125]; // Esempio di codici delle partite
@@ -63,5 +58,4 @@ function joinGame(gameId) {
     // Qui puoi aggiungere la logica per partecipare alla partita con ID specifico.
 }
 
-window.createNewGame = createNewGame;
 document.addEventListener("DOMContentLoaded", initPartite);

@@ -1,6 +1,5 @@
 import { Socket } from 'net';
 
-
 // Creazione del client
 const client = new Socket();
 
