@@ -32,7 +32,7 @@ int main() {
     memset(&cliaddr, 0, sizeof(cliaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = INADDR_ANY;
-    servaddr.sin_port = htons(8080);
+    servaddr.sin_port = htons(5050);
 
     // Binding del socket
     if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {

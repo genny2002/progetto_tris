@@ -7,10 +7,14 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.client.Connessione.Connessione;
 import com.client.Model.Partita;
+
+import java.net.Socket;
 
 public class HomePageController {
     @FXML
@@ -60,8 +64,17 @@ public class HomePageController {
         }
     }
 
-    private List<Partita> getPartiteInAttesa() {
-        // Simula un elenco di partite in attesa
+    private List<Partita> getPartiteInAttesa() {    //RECUPERARE LE PARTITE IN ATTESA DAL SERVER
+        Socket clientSocket = Connessione.createSocket();
+        Connessione.sendRequest(clientSocket, "GET_PARTITE_IN_ATTESA");
+        
+        try {
+            // Chiudi il socket
+            clientSocket.close();
+        } catch (IOException e) {
+            System.err.println("Errore durante la chiusura del socket");
+            e.printStackTrace();
+        }
         List<Partita> partite = new ArrayList<>();
         partite.add(new Partita(1, "Mario"));
         partite.add(new Partita(2, "Luigi"));
@@ -75,8 +88,9 @@ public class HomePageController {
     }
 
     @FXML
-    private void handleClickCreaNuovaPartitaButton()  {
+    private void handleClickCreaNuovaPartitaButton() throws IOException {
         System.out.println(nomeGiocatore);
+        App.setRoot("match");
     }    
 }
 
