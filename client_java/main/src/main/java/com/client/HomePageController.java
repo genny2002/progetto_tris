@@ -66,15 +66,15 @@ public class HomePageController {
 
     private List<Partita> getPartiteInAttesa() {    //RECUPERARE LE PARTITE IN ATTESA DAL SERVER
         Socket clientSocket = Connessione.createSocket();
-        Connessione.sendRequest(clientSocket, "GET_PARTITE_IN_ATTESA");
-        
+        Connessione.sendRequest(clientSocket, "partita::getPartiteInAttesa");
+
         try {
-            // Chiudi il socket
             clientSocket.close();
         } catch (IOException e) {
             System.err.println("Errore durante la chiusura del socket");
             e.printStackTrace();
         }
+
         List<Partita> partite = new ArrayList<>();
         partite.add(new Partita(1, "Mario"));
         partite.add(new Partita(2, "Luigi"));
