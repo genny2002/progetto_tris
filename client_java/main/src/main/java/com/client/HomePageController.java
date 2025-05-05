@@ -65,20 +65,10 @@ public class HomePageController {
     }
 
     private List<Partita> getPartiteInAttesa() {    //RECUPERARE LE PARTITE IN ATTESA DAL SERVER
-        Socket clientSocket = Connessione.createSocket();
-        Connessione.sendRequest(clientSocket, "partita::getPartiteInAttesa");
+        String partiteString= Connessione.getClientSocket("Partita:getPartiteInAttesa:");
+        System.out.println("Partite in attesa: " + partiteString);
+        List<Partita> partite = Partita.convertToObjects(partiteString);
 
-        try {
-            clientSocket.close();
-        } catch (IOException e) {
-            System.err.println("Errore durante la chiusura del socket");
-            e.printStackTrace();
-        }
-
-        List<Partita> partite = new ArrayList<>();
-        partite.add(new Partita(1, "Mario"));
-        partite.add(new Partita(2, "Luigi"));
-        partite.add(new Partita(3, "Peach"));
         return partite;
     }
 
@@ -89,7 +79,8 @@ public class HomePageController {
 
     @FXML
     private void handleClickCreaNuovaPartitaButton() throws IOException {
-        System.out.println(nomeGiocatore);
+        String partiteString= Connessione.getClientSocket("Partita:putCreaPartita:" + nomeGiocatore);
+        List<Partita> partite = Partita.convertToObjects(partiteString);
         App.setRoot("match");
     }    
 }

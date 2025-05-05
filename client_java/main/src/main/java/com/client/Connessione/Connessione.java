@@ -7,11 +7,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.List;
 
-
-import com.client.Model.Partita;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 import com.client.Model.Partita;
 
 public class Connessione {
@@ -39,6 +34,20 @@ public class Connessione {
         }
 
         return socket;
+    }
+
+    public static String getClientSocket(String request) {
+        Socket clientSocket = Connessione.createSocket();
+        Connessione.sendRequest(clientSocket, request);
+        String response = Connessione.readResponse(clientSocket);
+
+        try {
+            clientSocket.close();
+        } catch (IOException e) {
+            System.err.println("Errore durante la chiusura del socket");
+            e.printStackTrace();
+        }
+        return response;
     }
 
     public static void sendRequest(Socket socket, String request) {
@@ -75,30 +84,5 @@ public class Connessione {
         }
 
         return response.toString();
-    }
-
-    public static Partita[] readResponse(Socket socket) {
-        StringBuilder response = new StringBuilder();
-        byte[] buffer = new byte[MAX_RESPONSE_SIZE];
-
-        try {
-            InputStream inputStream = socket.getInputStream();
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                response.append(new String(buffer, 0, bytesRead));
-                if (bytesRead < MAX_RESPONSE_SIZE) break; // Termina quando il messaggio è completo
-            }
-        } catch (IOException e) {
-            System.err.println("Errore durante la lettura della risposta");
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        // Usa Gson per convertire la stringa JSON in un array di oggetti Partita
-        Gson gson = new Gson();
-        Type partitaListType = new TypeToken<List<Partita>>() {}.getType();
-        List<Partita> partite = gson.fromJson(response.toString(), partitaListType);
-
-        return partite.toArray(new Partita[0]);
-    }
+    }   
 }
