@@ -8,12 +8,18 @@
 #include <netinet/in.h>
 #include <pthread.h>
 
+#include "config.h"
 #include "partita.h"
+
+partita_t partite[MAX_PARTITE];  // IL SERVER SUPPORTA AL MASSIMO 10 PARTITE
+
 
 void* process(void * ptr);
 
 int main() {
     printf("Server started...\n");
+    inizializza_partite(partite); // Inizializza l'array di partite
+
     int sockfd, new_socket; //'sockfd' è la socket del server in cui riceve richieste di connessione, 'new_socket' è la socket del client con la quale il server comunica con il client
     int opt = 1;
     //char buffer[1024] = {0};
@@ -38,7 +44,7 @@ int main() {
     memset(&cliaddr, 0, sizeof(cliaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = INADDR_ANY;
-    servaddr.sin_port = htons(5050);
+    servaddr.sin_port = htons(PORT);
 
     // Binding del socket
     if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
@@ -97,8 +103,8 @@ void* process(void * ptr){
     printf("Received: \"%s\"\n", buffer);
 
     if(strstr(buffer, "Partita")!=NULL){
-        msg=partitaParser(buffer);
-        printf("msg: %s\n", msg);
+        msg=partitaParser(buffer, partite);
+        //printf("msg: %s\n", msg);
     }
 
     // Invio del messaggio al client

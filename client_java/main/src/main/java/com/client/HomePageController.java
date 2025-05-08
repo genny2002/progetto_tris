@@ -66,6 +66,10 @@ public class HomePageController {
 
     private List<Partita> getPartiteInAttesa() {    //RECUPERARE LE PARTITE IN ATTESA DAL SERVER
         String partiteString= Connessione.getClientSocket("Partita:getPartiteInAttesa:");
+        if(partiteString == null || partiteString.isEmpty()) {
+            System.out.println("Nessuna partita in attesa.");
+            return new ArrayList<>(); // Restituisce una lista vuota se non ci sono partite
+        }
         System.out.println("Partite in attesa: " + partiteString);
         List<Partita> partite = Partita.convertToObjects(partiteString);
 
@@ -80,7 +84,8 @@ public class HomePageController {
     @FXML
     private void handleClickCreaNuovaPartitaButton() throws IOException {
         String partiteString= Connessione.getClientSocket("Partita:putCreaPartita:" + nomeGiocatore);
-        List<Partita> partite = Partita.convertToObjects(partiteString);
+        System.out.println(partiteString);
+        //List<Partita> partite = Partita.convertToObjects(partiteString);
         App.setRoot("match");
     }    
 }
