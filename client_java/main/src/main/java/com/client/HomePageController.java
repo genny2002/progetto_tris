@@ -27,6 +27,8 @@ public class HomePageController {
     private ListView<HBox> partite_list;
 
     private static String nomeGiocatore;
+    List<Partita> partite;
+    Connessione connessione;
 
     public static void setNomeGiocatore(String nome) {
         nomeGiocatore = nome; // Metodo per impostare il nome del giocatore
@@ -34,6 +36,8 @@ public class HomePageController {
 
     @FXML
     private void initialize() {
+        connessione = new Connessione();
+
         if (nomeGiocatore != null && !nomeGiocatore.isEmpty()) {
             benvenuto_label.setText("Benvenuto, " + nomeGiocatore + "!");
         } else {
@@ -45,7 +49,7 @@ public class HomePageController {
 
     private void initPartiteInAttesa() {
         // Simula il caricamento delle partite in attesa
-        List<Partita> partite = getPartiteInAttesa();
+        this.partite = getPartiteInAttesa();
 
         for (Partita partita : partite) {
             HBox riga = new HBox(10); // Layout orizzontale per ogni partita
@@ -65,27 +69,40 @@ public class HomePageController {
     }
 
     private List<Partita> getPartiteInAttesa() {    //RECUPERARE LE PARTITE IN ATTESA DAL SERVER
-        String partiteString= Connessione.getClientSocket("Partita:getPartiteInAttesa:");
+        String partiteString= connessione.getClientSocket("Partita:getPartiteInAttesa:");
+        
         if(partiteString == null || partiteString.isEmpty()) {
             System.out.println("Nessuna partita in attesa.");
             return new ArrayList<>(); // Restituisce una lista vuota se non ci sono partite
         }
+
         System.out.println("Partite in attesa: " + partiteString);
         List<Partita> partite = Partita.convertToObjects(partiteString);
 
+        //connessione.closeSocket();
+        
         return partite;
     }
 
     private void partecipaAPartita(int idPartita) {
-        System.out.println("Partecipando alla partita con ID: " + idPartita);
-        // Logica per partecipare alla partita
+        String nomeCreatore = null;
+
+        for (Partita p : partite) {
+            if (p.getId() == idPartita) {
+                nomeCreatore = p.getNomeCreatore();
+                break;
+            }
+        }
+
+        String response = connessione.getClientSocket("Richiesta:putSendRequest:" + idPartita + "," + nomeGiocatore + "," + nomeCreatore);
     }
 
     @FXML
     private void handleClickCreaNuovaPartitaButton() throws IOException {
-        String partiteString= Connessione.getClientSocket("Partita:putCreaPartita:" + nomeGiocatore);
-        System.out.println(partiteString);
-        //List<Partita> partite = Partita.convertToObjects(partiteString);
+        System.out.println("Crea nuova partita cliccato!");
+        //String partiteString= connessione.getClientSocket("Partita:putCreaPartita:" + nomeGiocatore);
+        String partiteString= connessione.getClientSocket("Partita:getPartiteInAttesa:");
+        MatchController.setClientSocket(connessione.clientSocket);
         App.setRoot("match");
     }    
 }

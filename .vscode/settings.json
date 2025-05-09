@@ -2,6 +2,7 @@
     "java.configuration.updateBuildConfiguration": "interactive",
     "files.associations": {
         "cstdlib": "c",
-        "partita.h": "c"
+        "partita.h": "c",
+        "richiesta.h": "c"
     }
 }

@@ -1,4 +1,8 @@
 package com.client;
+import java.io.IOException;
+import java.net.Socket;
+import com.client.Connessione.NotificaListener; // Ensure this is the correct package for NotificaListener
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
@@ -14,6 +18,7 @@ public class MatchController {
     @FXML private Button button_22;
 
     private boolean isXTurn = true; // True = 'X', False = 'O'
+    public static Socket clientSocket;
 
     @FXML
     public void initialize() {
@@ -28,6 +33,10 @@ public class MatchController {
         button_20.setOnAction(e -> handleMove(button_20));
         button_21.setOnAction(e -> handleMove(button_21));
         button_22.setOnAction(e -> handleMove(button_22));
+
+        Thread notificaThread = new Thread(new NotificaListener(clientSocket));
+        notificaThread.start();
+        
     }
 
     private void handleMove(Button button) {
@@ -36,5 +45,9 @@ public class MatchController {
             button.setText(isXTurn ? "X" : "O");
             isXTurn = !isXTurn; // Cambia turno
         }
+    }
+
+    public static void setClientSocket(Socket newSocket) {
+        clientSocket = newSocket;
     }
 }

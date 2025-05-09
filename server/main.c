@@ -10,15 +10,17 @@
 
 #include "config.h"
 #include "partita.h"
+#include "richiesta.h"
 
 partita_t partite[MAX_PARTITE];  // IL SERVER SUPPORTA AL MASSIMO 10 PARTITE
-
+coda_t richieste;
 
 void* process(void * ptr);
 
 int main() {
     printf("Server started...\n");
     inizializza_partite(partite); // Inizializza l'array di partite
+    inizializzaCoda(&richieste);
 
     int sockfd, new_socket; //'sockfd' è la socket del server in cui riceve richieste di connessione, 'new_socket' è la socket del client con la quale il server comunica con il client
     int opt = 1;
@@ -79,6 +81,7 @@ int main() {
 }
     
 void* process(void * ptr){
+    printf("Ciao...\n");
     const char *msg = "";
     char buffer[1024] = {0};
     int socket = *((int *) ptr);
@@ -93,6 +96,8 @@ void* process(void * ptr){
 
     // Lettura dei dati dal client
     int n = read(socket, buffer, 1024);
+    printf("Valore di n: %s\n", buffer);
+
     if (n < 0) {
         perror("read");
         close(socket);
@@ -103,8 +108,12 @@ void* process(void * ptr){
     printf("Received: \"%s\"\n", buffer);
 
     if(strstr(buffer, "Partita")!=NULL){
-        msg=partitaParser(buffer, partite);
+        msg=partitaParser(buffer, partite, socket);
         //printf("msg: %s\n", msg);
+    }else if(strstr(buffer, "Richiesta")!=NULL){
+        msg=richiestaParser(buffer, partite, socket, &richieste);
+        //printf("msg: %s\n", msg);
+
     }
 
     // Invio del messaggio al client
@@ -112,6 +121,6 @@ void* process(void * ptr){
     printf("Message sent.\n");
 
     // Chiusura dei socket
-    close(socket);
+    //close(socket);
     //close(sockfd);
 }

@@ -6,10 +6,12 @@ void inizializza_partite(partita_t *partite) {
         strcpy(partite[i].stato, "nuova_creazione");
         strcpy(partite[i].nomeCreatore, "");
         strcpy(partite[i].nomeGiocatore, "");
+        partite[i].socketCreatore = -1; // Inizializza il socket a -1 per indicare che non è connesso
+        partite[i].socketGiocatore = -1; // Inizializza il socket a -1 per indicare che non è connesso
     }
 }
 
-char *partitaParser(char *buffer, partita_t *partite) {
+char *partitaParser(char *buffer, partita_t *partite, int socketCreatore) {
     char nomeFunzione[50]={0}; 
     char attributi[150]={0};
     
@@ -22,7 +24,7 @@ char *partitaParser(char *buffer, partita_t *partite) {
     }
 
     if(strcmp(nomeFunzione, "getPartiteInAttesa") == 0) return getPartiteInAttesa(partite);
-    else if(strcmp(nomeFunzione, "putCreaPartita") == 0 ) return putCreaPartita(partite, attributi);
+    else if(strcmp(nomeFunzione, "putCreaPartita") == 0 ) return putCreaPartita(partite, attributi, socketCreatore);
     else return "Comando non riconosciuto\n\0";
 }
 
@@ -38,7 +40,7 @@ char *getPartiteInAttesa(partita_t *partite) {
     for (int i = 0; i < MAX_PARTITE; i++) {
         if(strcmp(partite[i].stato, "in_attesa") == 0) {
             char buffer[100]; // Buffer temporaneo per concatenare i dati
-            
+
             sprintf(buffer, "id:%d,nomeCreatore:%s/", i, partite[i].nomeCreatore);
             strcat(partiteInAttesa, buffer);
         }
@@ -47,11 +49,12 @@ char *getPartiteInAttesa(partita_t *partite) {
     return partiteInAttesa;
 }
 
-char *putCreaPartita(partita_t *partite, char *nomeGiocatore) {
+char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore) {
     for (int i = 0; i < MAX_PARTITE; i++) {
         if(strcmp(partite[i].stato, "nuova_creazione") == 0 || strcmp(partite[i].stato, "terminata") == 0) {
             strcpy(partite[i].nomeCreatore, nomeGiocatore);
             strcpy(partite[i].stato, "in_attesa");
+            partite[i].socketCreatore = socketCreatore;
 
             return "Partita creata con successo\n";
         }

@@ -11,8 +11,9 @@ import com.client.Model.Partita;
 
 public class Connessione {
     private static final int MAX_RESPONSE_SIZE = 1024;
+    public Socket clientSocket;
 
-    public static Socket createSocket() {
+    public Connessione() {
         Socket socket = null;
         String serverAddress = "127.0.0.1";
         int port = 5050;
@@ -33,28 +34,27 @@ public class Connessione {
             System.exit(1);
         }
 
-        return socket;
+        this.clientSocket=socket;
     }
 
-    public static String getClientSocket(String request) {
-        Socket clientSocket = Connessione.createSocket();
-        Connessione.sendRequest(clientSocket, request);
-        String response = Connessione.readResponse(clientSocket);
+    public String getClientSocket(String request) {
+        //this.clientSocket = Connessione.createSocket();
 
-        try {
-            clientSocket.close();
-        } catch (IOException e) {
-            System.err.println("Errore durante la chiusura del socket");
-            e.printStackTrace();
-        }
+        System.out.println("Invio richiesta al server: " + request);
+        this.sendRequest(this.clientSocket, request);
+
+        String response = this.readResponse(clientSocket);
+
+        //closeSocket(clientSocket);
         return response;
     }
 
-    public static void sendRequest(Socket socket, String request) {
+    public void sendRequest(Socket socket, String request) {
         try {
             OutputStream outputStream = socket.getOutputStream();
             outputStream.write(request.getBytes());
             outputStream.flush(); // Assicurati che i dati vengano inviati immediatamente
+            System.out.println("Messaggio inviato al server: " + request);
         } catch (IOException e) {
             System.err.println("Errore durante l'invio della richiesta");
 
@@ -63,7 +63,7 @@ public class Connessione {
         }
     }
 
-    public static String readResponse(Socket socket) {
+    public  String readResponse(Socket socket) {
         StringBuilder response = new StringBuilder();
         byte[] buffer = new byte[MAX_RESPONSE_SIZE];
 
@@ -85,4 +85,13 @@ public class Connessione {
 
         return response.toString();
     }   
+
+    public void closeSocket() {
+        try {
+            this.clientSocket.close();
+        } catch (IOException e) {
+            System.err.println("Errore durante la chiusura del socket");
+            e.printStackTrace();
+        }
+    }
 }
