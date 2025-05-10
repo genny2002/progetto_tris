@@ -90,8 +90,9 @@ char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, c
     strcpy(nuovaRichiesta.nomeGiocatore, nomeGiocatore);
     nuovaRichiesta.socketCreatore = partite[idPartita].socketCreatore;
     nuovaRichiesta.socketGiocatore = socketGiocatore;
+    nuovaRichiesta.idRichiesta = nuovaRichiesta.socketCreatore*10+nuovaRichiesta.socketGiocatore; // ID della richiesta
     enqueue(richieste, nuovaRichiesta);
-    notificaProprietario(nuovaRichiesta.socketCreatore, nomeGiocatore);
+    notificaProprietario(nuovaRichiesta.socketCreatore, nomeGiocatore, nuovaRichiesta.idRichiesta);
     //togliere la richiesta dalla coda (fare l'estrazione dalla coda)
     char *response = malloc(256);
 
@@ -100,10 +101,9 @@ char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, c
     return response;
 }
 
-void notificaProprietario(int socketProprietario, char* nomeGiocatore) {
+void notificaProprietario(int socketProprietario, char* nomeGiocatore, int idRichiesta) { 
     char messaggio[256]; // Usa un array locale
     
-    sprintf(messaggio, "Il giocatore %s ha chiesto di partecipare alla tua partita\n", nomeGiocatore);
+    sprintf(messaggio, "Il giocatore %s ha chiesto di partecipare alla tua partita:%d\n", nomeGiocatore, idRichiesta);
     send(socketProprietario, messaggio, strlen(messaggio), 0);
-    printf("Message sent: %s alla socket %d\n", messaggio, socketProprietario);
 }

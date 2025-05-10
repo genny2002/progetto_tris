@@ -1,6 +1,10 @@
 package com.client.Connessione;
 
 import java.net.Socket;
+
+import com.client.MatchController;
+import com.client.Model.Richiesta;
+
 import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -16,16 +20,17 @@ public class NotificaListener implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("In attesa di notifiche dal server... sulla socket: " + socket.getPort());
             InputStream inputStream = socket.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String message;
 
             // Leggi notifiche dal server in un loop
             while ((message = reader.readLine()) != null) {
-                System.out.println("Notifica ricevuta: " + message);
+                int separatorIndex = message.indexOf(":");
+                String testo = message.substring(0, separatorIndex); // Parte prima di ':'
+                String id = message.substring(separatorIndex + 1);
 
-                // Qui puoi gestire la notifica ricevuta
+                MatchController.addNuovaRichiesta(new Richiesta(id, testo, "in attesa"));
             }
         } catch (IOException e) {
             System.err.println("Errore nel listener delle notifiche: " + e.getMessage());

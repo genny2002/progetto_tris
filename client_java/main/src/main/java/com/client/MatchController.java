@@ -1,7 +1,11 @@
 package com.client;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.Queue;
+
 import com.client.Connessione.NotificaListener; // Ensure this is the correct package for NotificaListener
+import com.client.Model.Richiesta;
 import com.client.Connessione.Connessione; // Ensure this is the correct package for NotificaListener
 
 import javafx.fxml.FXML;
@@ -20,6 +24,7 @@ public class MatchController {
 
     private boolean isXTurn = true; // True = 'X', False = 'O'
     public static Connessione connessione;
+    public static Queue<Richiesta> richiesteRicevute = new LinkedList<>();
 
     @FXML
     public void initialize() {
@@ -48,5 +53,10 @@ public class MatchController {
 
     public static void setClientSocket(Connessione newConnessione) {
         connessione = newConnessione;
+    }
+
+    public static void addNuovaRichiesta(Richiesta richiesta) {
+        richiesteRicevute.add(richiesta);
+        System.out.println(richiesteRicevute.peek().messaggio);
     }
 }
