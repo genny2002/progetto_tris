@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 #include "config.h"
 
@@ -21,7 +23,7 @@ typedef struct {
 } partita_t;
 
 char *partitaParser(char *buffer, partita_t *partite, int socketCreatore);
-char *getPartiteInAttesa(partita_t *partite);
+char *getPartiteInAttesa(partita_t *partite, int socketCreatore);
 void inizializza_partite(partita_t *partite);
 char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore);
 

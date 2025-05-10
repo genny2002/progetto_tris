@@ -5,7 +5,6 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <netinet/in.h>
 #include <pthread.h>
 
 #include "config.h"
@@ -62,7 +61,7 @@ int main() {
 
     int addrlen = sizeof(cliaddr);
 
-    while(1){
+    while(1){   
         // Accettazione di una connessione
         if ((new_socket = accept(sockfd, (struct sockaddr*)&cliaddr, (socklen_t*)&addrlen)) < 0) {
             perror("accept");
@@ -81,7 +80,6 @@ int main() {
 }
     
 void* process(void * ptr){
-    printf("Ciao...\n");
     const char *msg = "";
     char buffer[1024] = {0};
     int socket = *((int *) ptr);
@@ -96,7 +94,6 @@ void* process(void * ptr){
 
     // Lettura dei dati dal client
     int n = read(socket, buffer, 1024);
-    printf("Valore di n: %s\n", buffer);
 
     if (n < 0) {
         perror("read");
@@ -107,20 +104,19 @@ void* process(void * ptr){
 
     printf("Received: \"%s\"\n", buffer);
 
+    printf("socket prima del parser: %d\n", socket);
+
     if(strstr(buffer, "Partita")!=NULL){
         msg=partitaParser(buffer, partite, socket);
-        //printf("msg: %s\n", msg);
     }else if(strstr(buffer, "Richiesta")!=NULL){
         msg=richiestaParser(buffer, partite, socket, &richieste);
-        //printf("msg: %s\n", msg);
-
     }
 
     // Invio del messaggio al client
-    send(socket, msg, strlen(msg), 0);
-    printf("Message sent.\n");
+    /*send(socket, msg, strlen(msg), 0);
+    printf("Message sent: %s alla socket %d\n", msg, socket);
 
     // Chiusura dei socket
-    //close(socket);
+    close(socket);*/
     //close(sockfd);
 }

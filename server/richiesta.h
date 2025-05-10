@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #include "config.h"
 #include "partita.h"

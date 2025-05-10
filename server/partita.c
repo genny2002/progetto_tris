@@ -14,7 +14,7 @@ void inizializza_partite(partita_t *partite) {
 char *partitaParser(char *buffer, partita_t *partite, int socketCreatore) {
     char nomeFunzione[50]={0}; 
     char attributi[150]={0};
-    
+    char *response;
     
     //char attr1[50], attr2[50];
 
@@ -23,12 +23,14 @@ char *partitaParser(char *buffer, partita_t *partite, int socketCreatore) {
         return "Formato input non valido\n";
     }
 
-    if(strcmp(nomeFunzione, "getPartiteInAttesa") == 0) return getPartiteInAttesa(partite);
-    else if(strcmp(nomeFunzione, "putCreaPartita") == 0 ) return putCreaPartita(partite, attributi, socketCreatore);
+    if(strcmp(nomeFunzione, "getPartiteInAttesa") == 0) response=getPartiteInAttesa(partite, socketCreatore);
+    else if(strcmp(nomeFunzione, "putCreaPartita") == 0 ) response=putCreaPartita(partite, attributi, socketCreatore);
     else return "Comando non riconosciuto\n\0";
+
+    return response;
 }
 
-char *getPartiteInAttesa(partita_t *partite) {
+char *getPartiteInAttesa(partita_t *partite, int socketCreatore) {
     char *partiteInAttesa = malloc(1024); // Allocazione dinamica
 
     if (partiteInAttesa == NULL) {
@@ -46,6 +48,12 @@ char *getPartiteInAttesa(partita_t *partite) {
         }
     }
 
+    // Invio del messaggio al client
+    send(socketCreatore, partiteInAttesa, strlen(partiteInAttesa), 0);
+    printf("Message sent: %s alla socket %d\n", partiteInAttesa, socketCreatore);
+
+    // Chiusura dei socket
+    close(socketCreatore);
     return partiteInAttesa;
 }
 
@@ -55,6 +63,11 @@ char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore
             strcpy(partite[i].nomeCreatore, nomeGiocatore);
             strcpy(partite[i].stato, "in_attesa");
             partite[i].socketCreatore = socketCreatore;
+
+            char *response = malloc(1024); // Allocazione dinamica
+            strcpy(response, "Partita creata con successo\n");
+            send(socketCreatore, response, strlen(response), 0);
+            printf("Message sent: %s alla socket %d\n", response, socketCreatore);
 
             return "Partita creata con successo\n";
         }

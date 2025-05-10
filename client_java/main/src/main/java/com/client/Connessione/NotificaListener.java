@@ -16,6 +16,7 @@ public class NotificaListener implements Runnable {
     @Override
     public void run() {
         try {
+            System.out.println("In attesa di notifiche dal server... sulla socket: " + socket.getPort());
             InputStream inputStream = socket.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String message;

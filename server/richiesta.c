@@ -44,6 +44,7 @@ bool dequeue(coda_t *coda, richiesta_t *richiesta) {
 char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, coda_t *richieste) {
     char nomeFunzione[50]={0}; 
     char attributi[150]={0};
+    char *response;
     
     
     //char attr1[50], attr2[50];
@@ -53,8 +54,15 @@ char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, cod
         return "Formato input non valido\n";
     }
 
-    if(strcmp(nomeFunzione, "putSendRequest") == 0) return putSendRequest(partite, attributi, socketGiocatore, richieste);
+    if(strcmp(nomeFunzione, "putSendRequest") == 0) response=putSendRequest(partite, attributi, socketGiocatore, richieste);
     else return "Comando non riconosciuto\n\0";
+
+    // Invio del messaggio al client
+    send(socketGiocatore, response, strlen(response), 0);
+    printf("Message sent: %s alla socket %d\n", response, socketGiocatore);
+
+    // Chiusura dei socket
+    close(socketGiocatore);
 }
 
 char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, coda_t *richieste) {
@@ -83,8 +91,8 @@ char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, c
     nuovaRichiesta.socketCreatore = partite[idPartita].socketCreatore;
     nuovaRichiesta.socketGiocatore = socketGiocatore;
     enqueue(richieste, nuovaRichiesta);
-    notificaProprietario(partite[idPartita].socketCreatore, nomeGiocatore);
-
+    notificaProprietario(nuovaRichiesta.socketCreatore, nomeGiocatore);
+    //togliere la richiesta dalla coda (fare l'estrazione dalla coda)
     char *response = malloc(256);
 
     sprintf(response, "Richiesta inviata al proprietario della partita %d\n", idPartita);
@@ -97,4 +105,5 @@ void notificaProprietario(int socketProprietario, char* nomeGiocatore) {
     
     sprintf(messaggio, "Il giocatore %s ha chiesto di partecipare alla tua partita", nomeGiocatore);
     send(socketProprietario, messaggio, strlen(messaggio), 0);
+    printf("Message sent: %s alla socket %d\n", messaggio, socketProprietario);
 }

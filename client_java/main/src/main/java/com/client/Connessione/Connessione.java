@@ -38,14 +38,10 @@ public class Connessione {
     }
 
     public String getClientSocket(String request) {
-        //this.clientSocket = Connessione.createSocket();
-
-        System.out.println("Invio richiesta al server: " + request);
         this.sendRequest(this.clientSocket, request);
 
         String response = this.readResponse(clientSocket);
 
-        //closeSocket(clientSocket);
         return response;
     }
 
@@ -54,7 +50,6 @@ public class Connessione {
             OutputStream outputStream = socket.getOutputStream();
             outputStream.write(request.getBytes());
             outputStream.flush(); // Assicurati che i dati vengano inviati immediatamente
-            System.out.println("Messaggio inviato al server: " + request);
         } catch (IOException e) {
             System.err.println("Errore durante l'invio della richiesta");
 

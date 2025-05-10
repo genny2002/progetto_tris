@@ -2,6 +2,7 @@ package com.client;
 import java.io.IOException;
 import java.net.Socket;
 import com.client.Connessione.NotificaListener; // Ensure this is the correct package for NotificaListener
+import com.client.Connessione.Connessione; // Ensure this is the correct package for NotificaListener
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -18,11 +19,10 @@ public class MatchController {
     @FXML private Button button_22;
 
     private boolean isXTurn = true; // True = 'X', False = 'O'
-    public static Socket clientSocket;
+    public static Connessione connessione;
 
     @FXML
     public void initialize() {
-        System.out.println("Ciao!!");
         // Aggiungi azioni per ogni pulsante
         button_00.setOnAction(e -> handleMove(button_00));
         button_01.setOnAction(e -> handleMove(button_01));
@@ -34,9 +34,8 @@ public class MatchController {
         button_21.setOnAction(e -> handleMove(button_21));
         button_22.setOnAction(e -> handleMove(button_22));
 
-        Thread notificaThread = new Thread(new NotificaListener(clientSocket));
+        Thread notificaThread = new Thread(new NotificaListener(connessione.clientSocket));
         notificaThread.start();
-        
     }
 
     private void handleMove(Button button) {
@@ -47,7 +46,7 @@ public class MatchController {
         }
     }
 
-    public static void setClientSocket(Socket newSocket) {
-        clientSocket = newSocket;
+    public static void setClientSocket(Connessione newConnessione) {
+        connessione = newConnessione;
     }
 }

@@ -3,6 +3,10 @@
     "files.associations": {
         "cstdlib": "c",
         "partita.h": "c",
-        "richiesta.h": "c"
+        "richiesta.h": "c",
+        "string.h": "c",
+        "pthread.h": "c",
+        "stdio.h": "c",
+        "config.h": "c"
     }
 }
