@@ -103,7 +103,7 @@ char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, c
 void notificaProprietario(int socketProprietario, char* nomeGiocatore) {
     char messaggio[256]; // Usa un array locale
     
-    sprintf(messaggio, "Il giocatore %s ha chiesto di partecipare alla tua partita", nomeGiocatore);
+    sprintf(messaggio, "Il giocatore %s ha chiesto di partecipare alla tua partita\n", nomeGiocatore);
     send(socketProprietario, messaggio, strlen(messaggio), 0);
     printf("Message sent: %s alla socket %d\n", messaggio, socketProprietario);
 }
