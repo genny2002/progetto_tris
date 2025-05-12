@@ -8,8 +8,12 @@ import com.client.Connessione.NotificaListener; // Ensure this is the correct pa
 import com.client.Model.Richiesta;
 import com.client.Connessione.Connessione; // Ensure this is the correct package for NotificaListener
 
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 
 public class MatchController {
     @FXML private Button button_00;
@@ -21,13 +25,17 @@ public class MatchController {
     @FXML private Button button_20;
     @FXML private Button button_21;
     @FXML private Button button_22;
+    @FXML private ListView<String> notifiche_list;
 
     private boolean isXTurn = true; // True = 'X', False = 'O'
     public static Connessione connessione;
     public static Queue<Richiesta> richiesteRicevute = new LinkedList<>();
+    private static ObservableList<String> richiesteList = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
+        notifiche_list.setItems(richiesteList);
+
         // Aggiungi azioni per ogni pulsante
         button_00.setOnAction(e -> handleMove(button_00));
         button_01.setOnAction(e -> handleMove(button_01));
@@ -57,6 +65,11 @@ public class MatchController {
 
     public static void addNuovaRichiesta(Richiesta richiesta) {
         richiesteRicevute.add(richiesta);
+
+        Platform.runLater(() -> {
+            richiesteList.add("Richiesta: " + richiesta.messaggio + " - ID: " + richiesta.idRichiesta);
+        });
+
         System.out.println(richiesteRicevute.peek().messaggio);
     }
 }
