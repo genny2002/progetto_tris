@@ -48,6 +48,8 @@ char *getPartiteInAttesa(partita_t *partite, int socketCreatore) {
         }
     }
 
+    strcat(partiteInAttesa, "\n"); // Aggiungi un terminatore di riga alla fine
+
     // Invio del messaggio al client
     send(socketCreatore, partiteInAttesa, strlen(partiteInAttesa), 0);
     printf("Message sent: %s alla socket %d\n", partiteInAttesa, socketCreatore);

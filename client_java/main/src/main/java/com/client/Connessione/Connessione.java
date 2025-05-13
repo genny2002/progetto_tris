@@ -1,7 +1,9 @@
 package com.client.Connessione;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -58,14 +60,15 @@ public class Connessione {
         }
     }
 
-    public  String readResponse(Socket socket) {
+    /*public  String readResponse(Socket socket) {
+        System.out.println("Ciao sono in readResponse");
         StringBuilder response = new StringBuilder();
         byte[] buffer = new byte[MAX_RESPONSE_SIZE];
 
         try {
             InputStream inputStream = socket.getInputStream();
             int bytesRead;
-
+            System.out.println("Ho letto lo stream della socket");
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 response.append(new String(buffer, 0, bytesRead));
                 // Termina il loop se il messaggio è completo (opzionale, dipende dal protocollo)
@@ -79,7 +82,24 @@ public class Connessione {
         }
 
         return response.toString();
-    }   
+    }*/
+
+    public String readResponse(Socket socket) {
+        StringBuilder response = new StringBuilder();
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String line = reader.readLine(); // Reads until '\n'
+
+            if (line != null) {
+                response.append(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Errore durante la lettura della risposta");
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return response.toString();
+    }
 
     public void closeSocket() {
         try {

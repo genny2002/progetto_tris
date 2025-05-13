@@ -78,11 +78,6 @@ public class HomePageController {
 
         List<Partita> partite = Partita.convertToObjects(partiteString);
         
-        
-        
-        System.out.println("Ciao, non sono ancora crashato"); // Debug: Stampa il nome del giocatore
-        //connessione.closeSocket();
-        
         return partite;
     }
 
