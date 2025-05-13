@@ -80,45 +80,29 @@ int main() {
 }
     
 void* process(void * ptr){
-    const char *msg = "";
     char buffer[1024] = {0};
     int socket = *((int *) ptr);
-    free(ptr); // Liberazione della memoria allocata per il descrittore del socket
+    free(ptr);
 
-    /*char request[MAX_REQUEST_SIZE];
-    char response[MAX_RESPONSE_SIZE];
+    while (1) {
+        memset(buffer, 0, sizeof(buffer));
+        int n = read(socket, buffer, 1024);
+        if (n <= 0) break; // Client ha chiuso la connessione
 
-    memset(request, 0, MAX_REQUEST_SIZE);
-    memset(response, 0, MAX_RESPONSE_SIZE);*/
+        printf("Received: \"%s\"\n", buffer);
+        printf("socket prima del parser: %d\n", socket);
 
-
-    // Lettura dei dati dal client
-    int n = read(socket, buffer, 1024);
-
-    if (n < 0) {
-        perror("read");
-        close(socket);
-        //close(sockfd);
-        exit(EXIT_FAILURE);
+        const char *msg = "";
+        if(strstr(buffer, "Partita")!=NULL){
+            msg=partitaParser(buffer, partite, socket);
+        }else if(strstr(buffer, "Richiesta")!=NULL){
+            msg=richiestaParser(buffer, partite, socket, &richieste);
+        }else{
+            break; // chiudi la connessione se il comando non è riconosciuto
+        }
+        // Puoi inviare la risposta qui se necessario
+        // send(socket, msg, strlen(msg), 0);
     }
-
-    printf("Received: \"%s\"\n", buffer);
-
-    printf("socket prima del parser: %d\n", socket);
-
-    if(strstr(buffer, "Partita")!=NULL){
-        msg=partitaParser(buffer, partite, socket);
-    }else if(strstr(buffer, "Richiesta")!=NULL){
-        msg=richiestaParser(buffer, partite, socket, &richieste);
-    }else{
-        close(socket);
-    }
-
-    // Invio del messaggio al client
-    /*send(socket, msg, strlen(msg), 0);
-    printf("Message sent: %s alla socket %d\n", msg, socket);
-
-    // Chiusura dei socket
-    close(socket);*/
-    //close(sockfd);
+    close(socket);
+    return NULL;
 }
