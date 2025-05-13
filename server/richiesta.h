@@ -34,5 +34,6 @@ bool dequeue(coda_t *coda, richiesta_t *richiesta);
 char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, coda_t *richieste);
 char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, coda_t *richieste);
 void notificaProprietario(int socketProprietario, char* nomeGiocatore, int idRichiesta);
+char *deleteRifiutaRichiesta(char *attributi, coda_t *richieste);
 
 #endif 

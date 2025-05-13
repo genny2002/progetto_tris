@@ -110,6 +110,8 @@ void* process(void * ptr){
         msg=partitaParser(buffer, partite, socket);
     }else if(strstr(buffer, "Richiesta")!=NULL){
         msg=richiestaParser(buffer, partite, socket, &richieste);
+    }else{
+        close(socket);
     }
 
     // Invio del messaggio al client

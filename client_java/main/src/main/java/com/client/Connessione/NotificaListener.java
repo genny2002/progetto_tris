@@ -12,9 +12,11 @@ import java.io.IOException;
 
 public class NotificaListener implements Runnable {
     private Socket socket;
+    private MatchController matchController;
 
-    public NotificaListener(Socket socket) {
+    public NotificaListener(Socket socket, MatchController matchController) {
         this.socket = socket;
+        this.matchController = matchController;
     }
 
     @Override
@@ -30,7 +32,7 @@ public class NotificaListener implements Runnable {
                 String testo = message.substring(0, separatorIndex); // Parte prima di ':'
                 String id = message.substring(separatorIndex + 1);
 
-                MatchController.addNuovaRichiesta(new Richiesta(id, testo, "in attesa"));
+                matchController.addNuovaRichiesta(new Richiesta(id, testo, "in attesa"));
             }
         } catch (IOException e) {
             System.err.println("Errore nel listener delle notifiche: " + e.getMessage());

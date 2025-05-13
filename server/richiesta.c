@@ -55,14 +55,17 @@ char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, cod
     }
 
     if(strcmp(nomeFunzione, "putSendRequest") == 0) response=putSendRequest(partite, attributi, socketGiocatore, richieste);
-    else return "Comando non riconosciuto\n\0";
+    else if (strcmp(nomeFunzione, "deleteRifiutaRichiesta") == 0) response = "RICHIESTA RIFIUTATA";/*deleteRifiutaRichiesta(attributi, richieste);*/
+    else return "Comando non riconosciuto\n";
 
     // Invio del messaggio al client
-    send(socketGiocatore, response, strlen(response), 0);
+    /*send(socketGiocatore, response, strlen(response), 0);
     printf("Message sent: %s alla socket %d\n", response, socketGiocatore);
 
     // Chiusura dei socket
-    close(socketGiocatore);
+    close(socketGiocatore);*/
+
+    return response;
 }
 
 char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, coda_t *richieste) {
@@ -106,4 +109,47 @@ void notificaProprietario(int socketProprietario, char* nomeGiocatore, int idRic
     
     sprintf(messaggio, "Il giocatore %s ha chiesto di partecipare alla tua partita:%d\n", nomeGiocatore, idRichiesta);
     send(socketProprietario, messaggio, strlen(messaggio), 0);
+}
+
+char *deleteRifiutaRichiesta(char *attributi, coda_t *richieste) {
+    int idRichiesta;
+    richiesta_t richiesta;
+    int foundIndex = -1;
+    char *response;
+
+    // Parsing con ',' come separatore e un terzo attributo
+    if (sscanf(attributi, "%d", &idRichiesta) != 1) {
+        response = "Formato input non valido\n";
+    }
+
+    // Cerca la richiesta nella coda
+    for (int i = 0; i < richieste->size; i++) {
+        int index = (richieste->front + i) % MAX_QUEUE_SIZE; // Posizione effettiva
+        if (richieste->queue[index].idRichiesta == idRichiesta) {
+            foundIndex = index;
+            richiesta = richieste->queue[index];
+            break;
+        }
+    }
+
+    if (foundIndex == -1) {
+        response = "Richiesta non trovata\n";
+    }
+
+    // Rimuovi la richiesta spostando gli elementi successivi
+    for (int i = foundIndex; i != richieste->rear; i = (i + 1) % MAX_QUEUE_SIZE) {
+        int nextIndex = (i + 1) % MAX_QUEUE_SIZE;
+        richieste->queue[i] = richieste->queue[nextIndex];
+    }
+
+    // Aggiorna la posizione della coda
+    richieste->rear = (richieste->rear - 1 + MAX_QUEUE_SIZE) % MAX_QUEUE_SIZE;
+    richieste->size--;
+
+    send(richiesta.socketGiocatore, response, strlen(response), 0);
+    printf("Message sent: %s alla socket %d\n", response, richiesta.socketGiocatore);
+
+    // Chiusura dei socket
+    //close(richiesta.socketGiocatore);
+    return response;
 }

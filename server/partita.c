@@ -53,7 +53,8 @@ char *getPartiteInAttesa(partita_t *partite, int socketCreatore) {
     printf("Message sent: %s alla socket %d\n", partiteInAttesa, socketCreatore);
 
     // Chiusura dei socket
-    close(socketCreatore);
+    
+    //close(socketCreatore);
     return partiteInAttesa;
 }
 

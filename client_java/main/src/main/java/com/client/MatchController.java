@@ -14,6 +14,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
 
 public class MatchController {
     @FXML private Button button_00;
@@ -25,7 +27,7 @@ public class MatchController {
     @FXML private Button button_20;
     @FXML private Button button_21;
     @FXML private Button button_22;
-    @FXML private ListView<String> notifiche_list;
+    @FXML private ListView<HBox> notifiche_list;
 
     private boolean isXTurn = true; // True = 'X', False = 'O'
     public static Connessione connessione;
@@ -34,8 +36,6 @@ public class MatchController {
 
     @FXML
     public void initialize() {
-        notifiche_list.setItems(richiesteList);
-
         // Aggiungi azioni per ogni pulsante
         button_00.setOnAction(e -> handleMove(button_00));
         button_01.setOnAction(e -> handleMove(button_01));
@@ -47,7 +47,7 @@ public class MatchController {
         button_21.setOnAction(e -> handleMove(button_21));
         button_22.setOnAction(e -> handleMove(button_22));
 
-        Thread notificaThread = new Thread(new NotificaListener(connessione.clientSocket));
+        Thread notificaThread = new Thread(new NotificaListener(connessione.clientSocket, this));
         notificaThread.start();
     }
 
@@ -63,13 +63,40 @@ public class MatchController {
         connessione = newConnessione;
     }
 
-    public static void addNuovaRichiesta(Richiesta richiesta) {
-        richiesteRicevute.add(richiesta);
+
+    public /*static*/ void addNuovaRichiesta(Richiesta richiesta) {
+        //richiesteRicevute.add(richiesta);
+        
 
         Platform.runLater(() -> {
-            richiesteList.add("Richiesta: " + richiesta.messaggio + " - ID: " + richiesta.idRichiesta);
-        });
+            // Crea una riga per la richiesta
+            HBox riga = new HBox(10); // Spaziatura di 10 tra gli elementi
+            Text testoRichiesta = new Text("Richiesta: " + richiesta.messaggio + " (ID: " + richiesta.idRichiesta + ")");
+            Button accettaButton = new Button("Accetta");
+            Button rifiutaButton = new Button("Rifiuta");
 
-        System.out.println(richiesteRicevute.peek().messaggio);
+            // Azioni dei pulsanti
+            accettaButton.setOnAction(e -> handleAccept(richiesta));
+            rifiutaButton.setOnAction(e -> handleReject(richiesta));
+
+            // Aggiungi gli elementi alla riga
+            riga.getChildren().addAll(testoRichiesta, accettaButton, rifiutaButton);
+
+            // Aggiungi la riga alla ListView
+            notifiche_list.getItems().add(riga);
+        });
+    }
+
+    private static void handleAccept(Richiesta richiesta) {
+        System.out.println("Richiesta accettata: " + richiesta.messaggio);
+        // Logica per accettare la richiesta (es: invio al server)
+    }
+
+    private static void handleReject(Richiesta richiesta) {
+        String response = connessione.getClientSocket("Richiesta:deleteRifiutaRichiesta:" + richiesta.idRichiesta);
+        System.out.println("Risposta dal server ricevuta dopo il rifiuto della richiesta: " + response);
+        //connessione.closeSocket();
+        System.out.println("Richiesta " + richiesta.idRichiesta + "rifiutata");
+        // Logica per rifiutare la richiesta (es: invio al server)
     }
 }
