@@ -22,17 +22,23 @@ public class NotificaListener implements Runnable {
     @Override
     public void run() {
         try {
-            InputStream inputStream = socket.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String message;
 
-            // Leggi notifiche dal server in un loop
             while ((message = reader.readLine()) != null) {
-                int separatorIndex = message.indexOf(":");
-                String testo = message.substring(0, separatorIndex); // Parte prima di ':'
-                String id = message.substring(separatorIndex + 1);
+                // Solo i messaggi di notifica di partecipazione
+                if (message.startsWith("Richiesta di partecipazione")) {
+                    int separatorIndex = message.lastIndexOf(":");
+                    if (separatorIndex > 0) {
+                        String testo = message.substring(0, separatorIndex);
+                        String id = message.substring(separatorIndex + 1);
 
-                matchController.addNuovaRichiesta(new Richiesta(id, testo, "in attesa"));
+                        matchController.addNuovaRichiesta(new Richiesta(id, testo, "in attesa"));
+                    }
+                }else{
+                    System.out.println(message);
+                }
+                // Altri messaggi vengono ignorati da questo thread
             }
         } catch (IOException e) {
             System.err.println("Errore nel listener delle notifiche: " + e.getMessage());

@@ -93,10 +93,7 @@ public class MatchController {
     }
 
     private static void handleReject(Richiesta richiesta) {
-        String response = connessione.getClientSocket("Richiesta:deleteRifiutaRichiesta:" + richiesta.idRichiesta);
-        System.out.println("Risposta dal server ricevuta dopo il rifiuto della richiesta: " + response);
-        //connessione.closeSocket();
-        System.out.println("Richiesta " + richiesta.idRichiesta + "rifiutata");
+        connessione.sendRequest(connessione.clientSocket, "Richiesta:deleteRifiutaRichiesta:" + richiesta.idRichiesta);
         // Logica per rifiutare la richiesta (es: invio al server)
     }
 }

@@ -60,30 +60,6 @@ public class Connessione {
         }
     }
 
-    /*public  String readResponse(Socket socket) {
-        System.out.println("Ciao sono in readResponse");
-        StringBuilder response = new StringBuilder();
-        byte[] buffer = new byte[MAX_RESPONSE_SIZE];
-
-        try {
-            InputStream inputStream = socket.getInputStream();
-            int bytesRead;
-            System.out.println("Ho letto lo stream della socket");
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                response.append(new String(buffer, 0, bytesRead));
-                // Termina il loop se il messaggio è completo (opzionale, dipende dal protocollo)
-                if (bytesRead < MAX_RESPONSE_SIZE) break;
-            }
-        } catch (IOException e) {
-            System.err.println("Errore durante la lettura della risposta");
-
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        return response.toString();
-    }*/
-
     public String readResponse(Socket socket) {
         StringBuilder response = new StringBuilder();
         try {

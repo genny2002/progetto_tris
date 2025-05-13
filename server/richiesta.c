@@ -101,14 +101,14 @@ char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, c
 
     sprintf(response, "Richiesta inviata al proprietario della partita %d\n", idPartita);
     send(socketGiocatore, response, strlen(response), 0);
-    
+
     return response;
 }
 
 void notificaProprietario(int socketProprietario, char* nomeGiocatore, int idRichiesta) { 
     char messaggio[256]; // Usa un array locale
     
-    sprintf(messaggio, "Il giocatore %s ha chiesto di partecipare alla tua partita:%d\n", nomeGiocatore, idRichiesta);
+    sprintf(messaggio, "Richiesta di partecipazione. Il giocatore %s ha chiesto di partecipare alla tua partita:%d\n", nomeGiocatore, idRichiesta);
     send(socketProprietario, messaggio, strlen(messaggio), 0);
 }
 
@@ -116,11 +116,11 @@ char *deleteRifiutaRichiesta(char *attributi, coda_t *richieste) {
     int idRichiesta;
     richiesta_t richiesta;
     int foundIndex = -1;
-    char *response;
+    char *response = malloc(256);
 
     // Parsing con ',' come separatore e un terzo attributo
     if (sscanf(attributi, "%d", &idRichiesta) != 1) {
-        response = "Formato input non valido\n";
+        sprintf(response, "Formato input non valido\n");
     }
 
     // Cerca la richiesta nella coda
@@ -134,7 +134,7 @@ char *deleteRifiutaRichiesta(char *attributi, coda_t *richieste) {
     }
 
     if (foundIndex == -1) {
-        response = "Richiesta non trovata\n";
+        sprintf(response, "Richiesta non trovata\n");
     }
 
     // Rimuovi la richiesta spostando gli elementi successivi
@@ -147,8 +147,10 @@ char *deleteRifiutaRichiesta(char *attributi, coda_t *richieste) {
     richieste->rear = (richieste->rear - 1 + MAX_QUEUE_SIZE) % MAX_QUEUE_SIZE;
     richieste->size--;
 
-    send(richiesta.socketGiocatore, response, strlen(response), 0);
-    printf("Message sent: %s alla socket %d\n", response, richiesta.socketGiocatore);
+    sprintf(response, "la richiesta %d è stata rifiutata:%d\n", idRichiesta, idRichiesta);
+
+    send(richiesta.socketCreatore, response, strlen(response), 0);
+    printf("Message sent: %s alla socket %d\n", response, richiesta.socketCreatore);
 
     // Chiusura dei socket
     //close(richiesta.socketGiocatore);
