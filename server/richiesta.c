@@ -55,7 +55,7 @@ char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, cod
     }
 
     if(strcmp(nomeFunzione, "putSendRequest") == 0) response=putSendRequest(partite, attributi, socketGiocatore, richieste);
-    else if (strcmp(nomeFunzione, "deleteRifiutaRichiesta") == 0) response = "RICHIESTA RIFIUTATA";/*deleteRifiutaRichiesta(attributi, richieste);*/
+    else if (strcmp(nomeFunzione, "deleteRifiutaRichiesta") == 0) response = deleteRifiutaRichiesta(attributi, richieste);
     else return "Comando non riconosciuto\n";
 
     // Invio del messaggio al client
@@ -100,7 +100,8 @@ char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, c
     char *response = malloc(256);
 
     sprintf(response, "Richiesta inviata al proprietario della partita %d\n", idPartita);
-
+    send(socketGiocatore, response, strlen(response), 0);
+    
     return response;
 }
 
