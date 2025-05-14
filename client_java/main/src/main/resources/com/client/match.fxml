@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -33,5 +34,6 @@
          </children>
       </GridPane>
       <ListView id="notifiche_list" fx:id="notifiche_list" layoutX="385.0" layoutY="75.0" prefHeight="250.0" prefWidth="175.0" />
+      <Label id="avvisi_label" fx:id="avvisi_label" layoutX="213.0" layoutY="35.0" prefHeight="18.0" prefWidth="175.0" text="In attesa di una richiesta..." />
    </children>
 </AnchorPane>

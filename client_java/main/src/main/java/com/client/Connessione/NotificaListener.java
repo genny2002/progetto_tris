@@ -41,7 +41,6 @@ public class NotificaListener implements Runnable {
             String message;
 
             while ((message = reader.readLine()) != null) {
-                // Solo i messaggi di notifica di partecipazione
                 if (message.startsWith("Richiesta di partecipazione")) {
                     int separatorIndex = message.lastIndexOf(":");
                     if (separatorIndex > 0) {
@@ -52,15 +51,39 @@ public class NotificaListener implements Runnable {
                     }
                 }else{
                     System.out.println(message);
-                    if(matchController!=null){
-                        matchController.deleteNotifica();
-                    }
+                    if(message.contains("rifiutata")){
+                        if(matchController!=null){
+                            matchController.deleteNotifica();
+                        }
                     
-                    if(message.contains("rifiutata") && homePageController != null){
-                        homePageController.setRichiestaRifiutata(statoRichiesta);
+                        if(homePageController != null){
+                            homePageController.setRichiestaRifiutata(statoRichiesta);
+                        }
+                    }else if(message.contains("accettata")){
+
+                        String[] parts = message.split(":");
+
+                        //if (parts.length >= 4) {
+                            String idRichiesta = parts[1].trim();
+                            String nomeProprietario = parts[2].trim();
+                            String nomeGiocatore = parts[3].trim();
+                            // Ora hai nomeProprietario e nomeGiocatore in due stringhe diverse
+                            // Puoi passarli dove ti serve, ad esempio:
+                            // homePageController.setRichiestaAccettata(statoRichiesta, nomeProprietario, nomeGiocatore);
+                            // oppure salvarli come variabili locali
+                        //}
+
+                        if(homePageController != null){
+                            homePageController.nomeProprietario = nomeProprietario;
+                            homePageController.setRichiestaAccettata(statoRichiesta);
+                        }
+
+                        if(matchController != null){
+                            matchController.setNomeAvversario(nomeGiocatore);
+                            matchController.setAvvisiLabel();
+                        }
                     }
                 }
-                // Altri messaggi vengono ignorati da questo thread
             }
         } catch (IOException e) {
             System.err.println("Errore nel listener delle notifiche: " + e.getMessage());

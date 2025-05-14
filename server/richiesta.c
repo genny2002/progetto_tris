@@ -46,24 +46,14 @@ char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, cod
     char attributi[150]={0};
     char *response;
     
-    
-    //char attr1[50], attr2[50];
-
-    // Dividere la stringa in parti (ignora l'entità)
     if (sscanf(buffer, "%*[^:]:%49[^:]:%99[^\n]", nomeFunzione, attributi) < 1) {
         return "Formato input non valido\n";
     }
 
     if(strcmp(nomeFunzione, "putSendRequest") == 0) response=putSendRequest(partite, attributi, socketGiocatore, richieste);
     else if (strcmp(nomeFunzione, "deleteRifiutaRichiesta") == 0) response = deleteRifiutaRichiesta(attributi, richieste);
+    else if (strcmp(nomeFunzione, "putAccettaRichiesta")==0) response = putAccettaRichiesta(attributi, richieste, partite);
     else return "Comando non riconosciuto\n";
-
-    // Invio del messaggio al client
-    /*send(socketGiocatore, response, strlen(response), 0);
-    printf("Message sent: %s alla socket %d\n", response, socketGiocatore);
-
-    // Chiusura dei socket
-    close(socketGiocatore);*/
 
     return response;
 }
@@ -85,8 +75,7 @@ char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, c
     if (strcmp(partite[idPartita].stato, "in_attesa") != 0) {
         return "Partita non disponibile per richieste\n";
     }
-
-    //richiesta_t nuovaRichiesta = {idPartita, nomeCreatore, nomeGiocatore, partite[idPartita].socketCreatore, socketGiocatore}; //inserire le socket correttamente    
+    
     richiesta_t nuovaRichiesta;
     nuovaRichiesta.idPartita = idPartita;
     strcpy(nuovaRichiesta.nomeCreatore, nomeCreatore);
@@ -96,7 +85,7 @@ char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, c
     nuovaRichiesta.idRichiesta = nuovaRichiesta.socketCreatore*10+nuovaRichiesta.socketGiocatore; // ID della richiesta
     enqueue(richieste, nuovaRichiesta);
     notificaProprietario(nuovaRichiesta.socketCreatore, nomeGiocatore, nuovaRichiesta.idRichiesta);
-    //togliere la richiesta dalla coda (fare l'estrazione dalla coda)
+
     char *response = malloc(256);
 
     sprintf(response, "Richiesta inviata al proprietario della partita %d\n", idPartita);
@@ -155,7 +144,67 @@ char *deleteRifiutaRichiesta(char *attributi, coda_t *richieste) {
     send(richiesta.socketGiocatore, response, strlen(response), 0);
     printf("Message sent: %s alla socket %d\n", response, richiesta.socketGiocatore);
 
-    // Chiusura dei socket
-    //close(richiesta.socketGiocatore);
     return response;
+}
+
+char *putAccettaRichiesta(char *attributi, coda_t *richieste, partita_t *partite) {
+    int idRichiesta;
+    richiesta_t richiesta;
+    int foundIndex = -1;
+    char *response = malloc(256);
+
+    // Parsing con ',' come separatore e un terzo attributo
+    if (sscanf(attributi, "%d", &idRichiesta) != 1) {
+        sprintf(response, "Formato input non valido\n");
+    }
+
+    // Cerca la richiesta nella coda
+    for (int i = 0; i < richieste->size; i++) {
+        int index = (richieste->front + i) % MAX_QUEUE_SIZE; // Posizione effettiva
+        if (richieste->queue[index].idRichiesta == idRichiesta) {
+            foundIndex = index;
+            richiesta = richieste->queue[index];
+            break;
+        }
+    }
+
+    if (foundIndex == -1) {
+        sprintf(response, "Richiesta non trovata\n");
+    }else{
+        // Modifica lo stato della partita
+        int idPartita = richiesta.idPartita;
+        strcpy(partite[idPartita].stato, "in_gioco");
+        partite[idPartita].socketGiocatore = richiesta.socketGiocatore;
+        strcpy(partite[idPartita].nomeGiocatore, richiesta.nomeGiocatore);
+    }
+
+    deleteEliminaRichiesteByPartitaId(richieste, richiesta.idPartita);
+    sprintf(response, "la richiesta %d è stata accettata:%d:%s:%s\n", idRichiesta, idRichiesta, richiesta.nomeCreatore, richiesta.nomeGiocatore);
+    send(richiesta.socketCreatore, response, strlen(response), 0);
+    printf("Message sent: %s alla socket %d\n", response, richiesta.socketCreatore);
+    send(richiesta.socketGiocatore, response, strlen(response), 0);
+    printf("Message sent: %s alla socket %d\n", response, richiesta.socketGiocatore);
+
+    return response;
+}
+
+void deleteEliminaRichiesteByPartitaId(coda_t *richieste, int idPartita) {
+    int newSize = 0;
+    int front = richieste->front;
+    richiesta_t nuovaCoda[MAX_QUEUE_SIZE];
+
+    for (int i = 0; i < richieste->size; i++) {
+        int idx = (front + i) % MAX_QUEUE_SIZE;
+        if (richieste->queue[idx].idPartita != idPartita) {
+            nuovaCoda[newSize++] = richieste->queue[idx];
+        }
+    }
+
+    // Ricostruisci la coda senza le richieste da eliminare
+    for (int i = 0; i < newSize; i++) {
+        richieste->queue[i] = nuovaCoda[i];
+    }
+    richieste->front = 0;
+    richieste->rear = newSize > 0 ? newSize - 1 : -1;
+    richieste->size = newSize;
 }

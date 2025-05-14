@@ -30,6 +30,7 @@ public class HomePageController {
     private static String nomeGiocatore;
     List<Partita> partite;
     Connessione connessione;
+    public String nomeProprietario;
 
     public static void setNomeGiocatore(String nome) {
         nomeGiocatore = nome; // Metodo per impostare il nome del giocatore
@@ -105,13 +106,15 @@ public class HomePageController {
         statoRichiesta.setText("richiesta rifiutata");
     }
 
-    public static void setRichiestaAccettata(Text statoRichiesta) {
+    public void setRichiestaAccettata(Text statoRichiesta) throws IOException  {
         statoRichiesta.setText("richiesta accettata");
+        MatchController.setClientSocket(connessione);
+        MatchController.setNomeAvversario(nomeProprietario);
+        App.setRoot("match");
     }
 
     @FXML
     private void handleClickCreaNuovaPartitaButton() throws IOException {
-        //connessione = new Connessione();
         String partiteString= connessione.getClientSocket("Partita:putCreaPartita:" + nomeGiocatore);
         MatchController.setClientSocket(connessione);
         App.setRoot("match");

@@ -35,5 +35,7 @@ char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, cod
 char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, coda_t *richieste);
 void notificaProprietario(int socketProprietario, char* nomeGiocatore, int idRichiesta);
 char *deleteRifiutaRichiesta(char *attributi, coda_t *richieste);
+char *putAccettaRichiesta(char *attributi, coda_t *richieste, partita_t *partite);
+void deleteEliminaRichiesteByPartitaId(coda_t *richieste, int idPartita);
 
 #endif 

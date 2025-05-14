@@ -13,6 +13,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
@@ -28,16 +29,24 @@ public class MatchController {
     @FXML private Button button_21;
     @FXML private Button button_22;
     @FXML private ListView<HBox> notifiche_list;
+    @FXML private Label avvisi_label;
 
     private boolean isXTurn = true; // True = 'X', False = 'O'
     public static Connessione connessione;
     public static Queue<Richiesta> richiesteRicevute = new LinkedList<>();
     private static ObservableList<String> richiesteList = FXCollections.observableArrayList();
     private HBox rigaDaEliminare;
+    private static String nomeAvversario=null;
 
     @FXML
     public void initialize() {
         // Aggiungi azioni per ogni pulsante
+        if(nomeAvversario != null) {
+            avvisi_label.setText("Stai giocando contro " + nomeAvversario);
+        } else {
+            avvisi_label.setText("In attesa di una richiesta");
+        }
+
         button_00.setOnAction(e -> handleMove(button_00));
         button_01.setOnAction(e -> handleMove(button_01));
         button_02.setOnAction(e -> handleMove(button_02));
@@ -88,7 +97,7 @@ public class MatchController {
     }
 
     private static void handleAccept(Richiesta richiesta) {
-        System.out.println("Richiesta accettata: " + richiesta.messaggio);
+        connessione.sendRequest(connessione.clientSocket, "Richiesta:putAccettaRichiesta:" + richiesta.idRichiesta);
         // Logica per accettare la richiesta (es: invio al server)
     }
 
@@ -99,5 +108,13 @@ public class MatchController {
 
     public void deleteNotifica() {
         Platform.runLater(() -> notifiche_list.getItems().remove(this.rigaDaEliminare));
+    }
+
+    public static void setNomeAvversario(String avversario) {
+        nomeAvversario = avversario;
+    }
+
+    public void setAvvisiLabel() {
+        Platform.runLater(() -> avvisi_label.setText("Stai giocando contro " + nomeAvversario));
     }
 }
