@@ -33,6 +33,7 @@ public class MatchController {
     public static Connessione connessione;
     public static Queue<Richiesta> richiesteRicevute = new LinkedList<>();
     private static ObservableList<String> richiesteList = FXCollections.observableArrayList();
+    private HBox rigaDaEliminare;
 
     @FXML
     public void initialize() {
@@ -63,7 +64,6 @@ public class MatchController {
         connessione = newConnessione;
     }
 
-
     public /*static*/ void addNuovaRichiesta(Richiesta richiesta) {
         //richiesteRicevute.add(richiesta);
         
@@ -77,7 +77,7 @@ public class MatchController {
 
             // Azioni dei pulsanti
             accettaButton.setOnAction(e -> handleAccept(richiesta));
-            rifiutaButton.setOnAction(e -> handleReject(richiesta));
+            rifiutaButton.setOnAction(e -> handleReject(richiesta, riga));
 
             // Aggiungi gli elementi alla riga
             riga.getChildren().addAll(testoRichiesta, accettaButton, rifiutaButton);
@@ -92,8 +92,12 @@ public class MatchController {
         // Logica per accettare la richiesta (es: invio al server)
     }
 
-    private static void handleReject(Richiesta richiesta) {
+    private void handleReject(Richiesta richiesta, HBox riga) {
         connessione.sendRequest(connessione.clientSocket, "Richiesta:deleteRifiutaRichiesta:" + richiesta.idRichiesta);
-        // Logica per rifiutare la richiesta (es: invio al server)
+        rigaDaEliminare=riga; //Platform.runLater(() -> notifiche_list.getItems().remove(riga));
+    }
+
+    public void deleteNotifica() {
+        Platform.runLater(() -> notifiche_list.getItems().remove(this.rigaDaEliminare));
     }
 }

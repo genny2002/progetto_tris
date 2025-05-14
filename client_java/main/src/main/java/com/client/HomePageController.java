@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.client.Connessione.Connessione;
+import com.client.Connessione.NotificaListener;
 import com.client.Model.Partita;
 
 import java.net.Socket;
@@ -56,19 +57,23 @@ public class HomePageController {
             Text idPartita = new Text("ID: " + partita.getId());
             Text nomeCreatore = new Text("Creatore: " + partita.getNomeCreatore());
             Button partecipaButton = new Button("Partecipa");
+            Text statoRichiesta = new Text("");
 
             // Aggiungi un'azione al pulsante "Partecipa"
-            partecipaButton.setOnAction(e -> partecipaAPartita(partita.getId()));
+            partecipaButton.setOnAction(e -> {
+                partecipaAPartita(partita.getId(), statoRichiesta);
+                statoRichiesta.setText("richiesta in attesa");
+            });
 
             // Aggiungi gli elementi alla riga
-            riga.getChildren().addAll(idPartita, nomeCreatore, partecipaButton);
+            riga.getChildren().addAll(idPartita, nomeCreatore, partecipaButton, statoRichiesta);
 
             // Aggiungi la riga al ListView
             partite_list.getItems().add(riga);
         }
     }
 
-    private List<Partita> getPartiteInAttesa() {    //RECUPERARE LE PARTITE IN ATTESA DAL SERVER
+    private List<Partita> getPartiteInAttesa() {
         String partiteString = connessione.getClientSocket("Partita:getPartiteInAttesa:");
         
         if (partiteString == null || partiteString.isEmpty()) {
@@ -81,9 +86,7 @@ public class HomePageController {
         return partite;
     }
 
-    private void partecipaAPartita(int idPartita) {
-        //connessione = new Connessione();
-
+    private void partecipaAPartita(int idPartita, Text statoRichiesta) {
         String nomeCreatore = null;
 
         for (Partita p : partite) {
@@ -94,7 +97,16 @@ public class HomePageController {
         }
 
         String response = connessione.getClientSocket("Richiesta:putSendRequest:" + idPartita + "," + nomeGiocatore + "," + nomeCreatore);
-        //System.out.println("Risposta dal server ricevuta dopo la richiesta di partecipazione alla partita: " + response);
+        Thread notificaThread = new Thread(new NotificaListener(connessione.clientSocket, this, statoRichiesta));
+        notificaThread.start();
+    }
+
+    public void setRichiestaRifiutata(Text statoRichiesta) {
+        statoRichiesta.setText("richiesta rifiutata");
+    }
+
+    public static void setRichiestaAccettata(Text statoRichiesta) {
+        statoRichiesta.setText("richiesta accettata");
     }
 
     @FXML

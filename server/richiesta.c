@@ -152,6 +152,9 @@ char *deleteRifiutaRichiesta(char *attributi, coda_t *richieste) {
     send(richiesta.socketCreatore, response, strlen(response), 0);
     printf("Message sent: %s alla socket %d\n", response, richiesta.socketCreatore);
 
+    send(richiesta.socketGiocatore, response, strlen(response), 0);
+    printf("Message sent: %s alla socket %d\n", response, richiesta.socketGiocatore);
+
     // Chiusura dei socket
     //close(richiesta.socketGiocatore);
     return response;

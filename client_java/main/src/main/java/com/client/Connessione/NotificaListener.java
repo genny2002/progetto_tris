@@ -2,8 +2,12 @@ package com.client.Connessione;
 
 import java.net.Socket;
 
+import com.client.HomePageController;
 import com.client.MatchController;
 import com.client.Model.Richiesta;
+
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
 
 import java.io.InputStream;
 import java.io.BufferedReader;
@@ -13,10 +17,21 @@ import java.io.IOException;
 public class NotificaListener implements Runnable {
     private Socket socket;
     private MatchController matchController;
+    private HomePageController homePageController;
+    private Text statoRichiesta;
+    public HBox riga;
 
     public NotificaListener(Socket socket, MatchController matchController) {
         this.socket = socket;
         this.matchController = matchController;
+        this.riga = riga;
+    }
+
+    public NotificaListener(Socket socket, HomePageController homePageController, Text statoRichiesta)
+    {
+        this.socket = socket;
+        this.homePageController = homePageController;
+        this.statoRichiesta = statoRichiesta;
     }
 
     @Override
@@ -37,6 +52,13 @@ public class NotificaListener implements Runnable {
                     }
                 }else{
                     System.out.println(message);
+                    if(matchController!=null){
+                        matchController.deleteNotifica();
+                    }
+                    
+                    if(message.contains("rifiutata") && homePageController != null){
+                        homePageController.setRichiestaRifiutata(statoRichiesta);
+                    }
                 }
                 // Altri messaggi vengono ignorati da questo thread
             }
