@@ -1,5 +1,6 @@
 package com.client;
 
+import javafx.css.Match;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -106,17 +107,20 @@ public class HomePageController {
         statoRichiesta.setText("richiesta rifiutata");
     }
 
-    public void setRichiestaAccettata(Text statoRichiesta) throws IOException  {
+    public void setRichiestaAccettata(Text statoRichiesta, String simbolo, String idPartita) throws IOException  {
         statoRichiesta.setText("richiesta accettata");
         MatchController.setClientSocket(connessione);
         MatchController.setNomeAvversario(nomeProprietario);
+        MatchController.setSimbolo(simbolo);
+        MatchController.setIdPartita(idPartita);
         App.setRoot("match");
     }
 
     @FXML
     private void handleClickCreaNuovaPartitaButton() throws IOException {
-        String partiteString= connessione.getClientSocket("Partita:putCreaPartita:" + nomeGiocatore);
+        String idPartita = connessione.getClientSocket("Partita:putCreaPartita:" + nomeGiocatore);
         MatchController.setClientSocket(connessione);
+        MatchController.setIdPartita(idPartita);
         App.setRoot("match");
     }    
 }

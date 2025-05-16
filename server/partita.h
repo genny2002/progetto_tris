@@ -20,6 +20,9 @@ typedef struct {
     char nomeGiocatore[50];
     int socketCreatore;
     int socketGiocatore;
+    char simboloCreatore;
+    char simboloGiocatore;
+    char campo[3][3]; // Campo di gioco 3x3
 } partita_t;
 
 char *partitaParser(char *buffer, partita_t *partite, int socketCreatore);

@@ -62,25 +62,22 @@ public class NotificaListener implements Runnable {
                     }else if(message.contains("accettata")){
 
                         String[] parts = message.split(":");
-
-                        //if (parts.length >= 4) {
-                            String idRichiesta = parts[1].trim();
-                            String nomeProprietario = parts[2].trim();
-                            String nomeGiocatore = parts[3].trim();
-                            // Ora hai nomeProprietario e nomeGiocatore in due stringhe diverse
-                            // Puoi passarli dove ti serve, ad esempio:
-                            // homePageController.setRichiestaAccettata(statoRichiesta, nomeProprietario, nomeGiocatore);
-                            // oppure salvarli come variabili locali
-                        //}
+                        String idRichiesta = parts[1].trim();
+                        String nomeProprietario = parts[2].trim();
+                        String nomeGiocatore = parts[3].trim();
+                        String simboloCreatore= parts[4].trim();
+                        String simboloGiocatore= parts[5].trim();
+                        String idPartita = parts[6].trim();
 
                         if(homePageController != null){
                             homePageController.nomeProprietario = nomeProprietario;
-                            homePageController.setRichiestaAccettata(statoRichiesta);
+                            homePageController.setRichiestaAccettata(statoRichiesta, simboloGiocatore, idPartita);
                         }
 
                         if(matchController != null){
                             matchController.setNomeAvversario(nomeGiocatore);
                             matchController.setAvvisiLabel();
+                            matchController.setSimboloFromNotificaListener(simboloCreatore);
                         }
                     }
                 }

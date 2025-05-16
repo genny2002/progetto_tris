@@ -172,16 +172,33 @@ char *putAccettaRichiesta(char *attributi, coda_t *richieste, partita_t *partite
         sprintf(response, "Richiesta non trovata\n");
     }else{
         // Modifica lo stato della partita
+        srand(time(NULL));
         int idPartita = richiesta.idPartita;
         strcpy(partite[idPartita].stato, "in_gioco");
         partite[idPartita].socketGiocatore = richiesta.socketGiocatore;
         strcpy(partite[idPartita].nomeGiocatore, richiesta.nomeGiocatore);
+        int randomValue = rand() % 2;
+
+        if(randomValue == 0){
+            partite[idPartita].simboloGiocatore = 'X';
+            partite[idPartita].simboloCreatore = 'O';
+        }else{
+            partite[idPartita].simboloGiocatore = 'O';
+            partite[idPartita].simboloCreatore = 'X';
+        }
+
     }
 
     deleteEliminaRichiesteByPartitaId(richieste, richiesta.idPartita);
-    sprintf(response, "la richiesta %d è stata accettata:%d:%s:%s\n", idRichiesta, idRichiesta, richiesta.nomeCreatore, richiesta.nomeGiocatore);
+
+    printf("simboloCreatore: %c\n", partite[richiesta.idPartita].simboloCreatore); 
+    printf("simboloGiocatore: %c\n", partite[richiesta.idPartita].simboloGiocatore); 
+    
+    sprintf(response, "la richiesta %d è stata accettata:%d:%s:%s:%c:%c:%d\n", idRichiesta, idRichiesta, richiesta.nomeCreatore, richiesta.nomeGiocatore, partite[richiesta.idPartita].simboloCreatore, partite[richiesta.idPartita].simboloGiocatore, richiesta.idPartita);
+    
     send(richiesta.socketCreatore, response, strlen(response), 0);
     printf("Message sent: %s alla socket %d\n", response, richiesta.socketCreatore);
+    
     send(richiesta.socketGiocatore, response, strlen(response), 0);
     printf("Message sent: %s alla socket %d\n", response, richiesta.socketGiocatore);
 

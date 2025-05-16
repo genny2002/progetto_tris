@@ -31,18 +31,32 @@ public class MatchController {
     @FXML private ListView<HBox> notifiche_list;
     @FXML private Label avvisi_label;
 
-    private boolean isXTurn = true; // True = 'X', False = 'O'
+    private boolean isXTurn=false;
     public static Connessione connessione;
     public static Queue<Richiesta> richiesteRicevute = new LinkedList<>();
     private static ObservableList<String> richiesteList = FXCollections.observableArrayList();
     private HBox rigaDaEliminare;
     private static String nomeAvversario=null;
+    private static String simboloGiocatore=null;    //simbolo del giocatore attuale (che sta giocando)
+    private static String idPartita=null; //id della partita corrente
 
     @FXML
     public void initialize() {
-        // Aggiungi azioni per ogni pulsante
+        if(simboloGiocatore != null && simboloGiocatore.equals("X")){
+            button_00.setDisable(false);
+            button_01.setDisable(false);
+            button_02.setDisable(false);
+            button_10.setDisable(false);
+            button_11.setDisable(false);
+            button_12.setDisable(false);
+            button_20.setDisable(false);
+            button_21.setDisable(false);
+            button_22.setDisable(false);
+            isXTurn = true; // Il giocatore X inizia per primo
+        }
+
         if(nomeAvversario != null) {
-            avvisi_label.setText("Stai giocando contro " + nomeAvversario);
+            avvisi_label.setText("Stai giocando contro " + nomeAvversario + " con simbolo " + simboloGiocatore);
         } else {
             avvisi_label.setText("In attesa di una richiesta");
         }
@@ -63,20 +77,21 @@ public class MatchController {
 
     private void handleMove(Button button) {
         System.out.println("Button clicked: " + button.getId());
-        if (button.getText().isEmpty()) {
-            button.setText(isXTurn ? "X" : "O");
-            isXTurn = !isXTurn; // Cambia turno
-        }
+        char row = button.getId().charAt(7); // Assuming the button ID is in the format "button_XX"
+        char col=button.getId().charAt(8); // Extract the column part
+
+        String response = connessione.getClientSocket("Partita:putMove:" + row + "," + col + ":" + simboloGiocatore + ":" + idPartita);
+        //implementare putMove nel server
+        //disattivare i bottoni
+        //gestire l'altro giocatore
     }
 
     public static void setClientSocket(Connessione newConnessione) {
         connessione = newConnessione;
     }
 
-    public /*static*/ void addNuovaRichiesta(Richiesta richiesta) {
-        //richiesteRicevute.add(richiesta);
-        
-
+    public void addNuovaRichiesta(Richiesta richiesta) {
+    
         Platform.runLater(() -> {
             // Crea una riga per la richiesta
             HBox riga = new HBox(10); // Spaziatura di 10 tra gli elementi
@@ -115,6 +130,33 @@ public class MatchController {
     }
 
     public void setAvvisiLabel() {
-        Platform.runLater(() -> avvisi_label.setText("Stai giocando contro " + nomeAvversario));
+        Platform.runLater(() -> avvisi_label.setText("Stai giocando contro " + nomeAvversario + " con simbolo " + simboloGiocatore));   
+    }
+
+    public static void setSimbolo(String simbolo){
+        simboloGiocatore = simbolo;
+    }
+
+    public void setSimboloFromNotificaListener(String simbolo){
+        simboloGiocatore = simbolo;
+
+        if(simboloGiocatore.equals("X")){
+            button_00.setDisable(false);
+            button_01.setDisable(false);
+            button_02.setDisable(false);
+            button_10.setDisable(false);
+            button_11.setDisable(false);
+            button_12.setDisable(false);
+            button_20.setDisable(false);
+            button_21.setDisable(false);
+            button_22.setDisable(false);
+            isXTurn = true; // Il giocatore X inizia per primo
+        }
+    }
+
+    public static void setIdPartita(String id){
+        idPartita = id;
     }
 }
+
+

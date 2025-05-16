@@ -68,7 +68,8 @@ char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore
             partite[i].socketCreatore = socketCreatore;
 
             char *response = malloc(1024); // Allocazione dinamica
-            strcpy(response, "Partita creata con successo\n");
+            
+            sprintf(response, "%d\n", partite[i].id);
             send(socketCreatore, response, strlen(response), 0);
             printf("Message sent: %s alla socket %d\n", response, socketCreatore);
 

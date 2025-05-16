@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include "config.h"
 #include "partita.h"

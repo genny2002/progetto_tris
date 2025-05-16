@@ -22,18 +22,18 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button id="button_00" fx:id="button_00" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" />
-            <Button id="button_01" fx:id="button_01" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.columnIndex="1" />
-            <Button id="button_02" fx:id="button_02" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.columnIndex="2" />
-            <Button id="button_10" fx:id="button_10" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.rowIndex="1" />
-            <Button id="button_11" fx:id="button_11" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Button id="button_12" fx:id="button_12" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-            <Button id="button_20" fx:id="button_20" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.rowIndex="2" />
-            <Button id="button_21" fx:id="button_21" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Button id="button_22" fx:id="button_22" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <Button id="button_00" fx:id="button_00" disable="true" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" />
+            <Button id="button_01" fx:id="button_01" disable="true" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.columnIndex="1" />
+            <Button id="button_02" fx:id="button_02" disable="true" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.columnIndex="2" />
+            <Button id="button_10" fx:id="button_10" disable="true" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.rowIndex="1" />
+            <Button id="button_11" fx:id="button_11" disable="true" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Button id="button_12" fx:id="button_12" disable="true" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Button id="button_20" fx:id="button_20" disable="true" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.rowIndex="2" />
+            <Button id="button_21" fx:id="button_21" disable="true" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Button id="button_22" fx:id="button_22" disable="true" mnemonicParsing="false" prefHeight="89.0" prefWidth="83.0" text="Button" GridPane.columnIndex="2" GridPane.rowIndex="2" />
          </children>
       </GridPane>
       <ListView id="notifiche_list" fx:id="notifiche_list" layoutX="385.0" layoutY="75.0" prefHeight="250.0" prefWidth="175.0" />
-      <Label id="avvisi_label" fx:id="avvisi_label" layoutX="213.0" layoutY="35.0" prefHeight="18.0" prefWidth="175.0" text="In attesa di una richiesta..." />
+      <Label id="avvisi_label" fx:id="avvisi_label" layoutX="4.0" layoutY="35.0" prefHeight="18.0" prefWidth="592.0" text="In attesa di una richiesta..." textAlignment="CENTER" />
    </children>
 </AnchorPane>
