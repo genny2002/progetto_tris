@@ -40,8 +40,11 @@ public class NotificaListener implements Runnable {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String message;
 
-            while ((message = reader.readLine()) != null) {
-                if(message.startsWith("Mossa eseguita")){
+            while (!Thread.currentThread().isInterrupted() && (message = reader.readLine()) != null) {
+                if(message.startsWith("Partita terminata")){
+                    matchController.setPartitaTerminata(message);
+                }
+                else if(message.startsWith("Mossa eseguita")){
                     int row = (message.charAt(15)) - '0';
                     int column = message.charAt(17) - '0';
 

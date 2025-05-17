@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #include "config.h"
 
@@ -30,5 +31,7 @@ char *getPartiteInAttesa(partita_t *partite, int socketCreatore);
 void inizializza_partite(partita_t *partite);
 char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore);
 char *putMove(partita_t *partite, char *attributi);
+bool controllaVittoria(char campo[3][3], char simbolo);
+bool controllaPareggio(char campo[3][3]);
 
 #endif 

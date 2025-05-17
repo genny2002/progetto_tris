@@ -32,6 +32,7 @@ public class HomePageController {
     List<Partita> partite;
     Connessione connessione;
     public String nomeProprietario;
+    private Thread notificaThreadHomePage;
 
     public static void setNomeGiocatore(String nome) {
         nomeGiocatore = nome; // Metodo per impostare il nome del giocatore
@@ -98,9 +99,9 @@ public class HomePageController {
             }
         }
 
-        String response = connessione.getClientSocket("Richiesta:putSendRequest:" + idPartita + "," + nomeGiocatore + "," + nomeCreatore);
-        Thread notificaThread = new Thread(new NotificaListener(connessione.clientSocket, this, statoRichiesta));
-        notificaThread.start();
+        String response = connessione.getClientSocket("Richiesta:putSendRequest:" + idPartita + "," + nomeGiocatore + "," + nomeCreatore); 
+        notificaThreadHomePage = new Thread(new NotificaListener(connessione.clientSocket, this, statoRichiesta));
+        notificaThreadHomePage.start();
     }
 
     public void setRichiestaRifiutata(Text statoRichiesta) {
@@ -109,6 +110,11 @@ public class HomePageController {
 
     public void setRichiestaAccettata(Text statoRichiesta, String simbolo, String idPartita) throws IOException  {
         statoRichiesta.setText("richiesta accettata");
+
+        if (notificaThreadHomePage != null && notificaThreadHomePage.isAlive()) {
+            notificaThreadHomePage.interrupt();
+        }
+
         MatchController.setClientSocket(connessione);
         MatchController.setNomeAvversario(nomeProprietario);
         MatchController.setSimbolo(simbolo);

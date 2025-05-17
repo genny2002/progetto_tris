@@ -119,17 +119,55 @@ char *putMove(partita_t *partite, char *attributi) {
         send(partite[idPartita].socketCreatore, response, strlen(response), 0);
     }
 
-    // Controlla se c'è un vincitore
-    /*if (controllaVittoria(partite[idPartita].campo, simbolo)) {
+    if (controllaVittoria(partite[idPartita].campo, simbolo)) {
         strcpy(partite[idPartita].stato, "terminata");
-        return "Giocatore ha vinto!\n";
+
+        if(simbolo == partite[idPartita].simboloCreatore){
+            response="Partita terminata: Hai vinto!\n";
+            send(partite[idPartita].socketCreatore, response, strlen(response), 0);
+            response="Partita terminata: Hai perso!\n";
+            send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
+        }else{
+            response="Partita terminata: Hai vinto!\n";
+            send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
+            response="Partita terminata: Hai perso!\n";
+            send(partite[idPartita].socketCreatore, response, strlen(response), 0);
+        }
+    }else if (controllaPareggio(partite[idPartita].campo)) {
+        strcpy(partite[idPartita].stato, "terminata");
+        response="Partita terminata: Pareggio!\n";
+        send(partite[idPartita].socketCreatore, response, strlen(response), 0);
+        send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
     }
 
-    // Controlla se ci sono pareggi
-    if (controllaPareggio(partite[idPartita].campo)) {
-        strcpy(partite[idPartita].stato, "terminata");
-        return "Pareggio!\n";
-    }*/
-
     return "Mossa eseguita con successo\n";
+}
+
+bool controllaVittoria(char campo[3][3], char simbolo) {
+    // Controlla righe e colonne
+    for (int i = 0; i < 3; i++) {
+        if ((campo[i][0] == simbolo && campo[i][1] == simbolo && campo[i][2] == simbolo) ||
+            (campo[0][i] == simbolo && campo[1][i] == simbolo && campo[2][i] == simbolo)) {
+            return true;
+        }
+    }
+
+    // Controlla diagonali
+    if ((campo[0][0] == simbolo && campo[1][1] == simbolo && campo[2][2] == simbolo) ||
+        (campo[0][2] == simbolo && campo[1][1] == simbolo && campo[2][0] == simbolo)) {
+        return true;
+    }
+
+    return false;
+}
+
+bool controllaPareggio(char campo[3][3]) {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (campo[i][j] == ' ') {
+                return false; // C'è ancora una mossa disponibile
+            }
+        }
+    }
+    return true; // Nessuna mossa disponibile, quindi è un pareggio
 }

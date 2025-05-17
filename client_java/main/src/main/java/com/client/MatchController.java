@@ -230,6 +230,10 @@ public class MatchController {
     public void setAvvisiLabel() {
         Platform.runLater(() -> avvisi_label.setText("Stai giocando contro " + nomeAvversario + " con simbolo " + simboloGiocatore));   
     }
+    
+    public void setPartitaTerminata(String message) {
+        Platform.runLater(() -> { Platform.runLater(() -> avvisi_label.setText(message)); });
+    }
 
     public static void setSimbolo(String simbolo){
         if(simbolo.equals("X")){
