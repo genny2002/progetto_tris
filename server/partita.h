@@ -29,5 +29,6 @@ char *partitaParser(char *buffer, partita_t *partite, int socketCreatore);
 char *getPartiteInAttesa(partita_t *partite, int socketCreatore);
 void inizializza_partite(partita_t *partite);
 char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore);
+char *putMove(partita_t *partite, char *attributi);
 
 #endif 

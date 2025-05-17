@@ -41,7 +41,13 @@ public class NotificaListener implements Runnable {
             String message;
 
             while ((message = reader.readLine()) != null) {
-                if (message.startsWith("Richiesta di partecipazione")) {
+                if(message.startsWith("Mossa eseguita")){
+                    int row = (message.charAt(15)) - '0';
+                    int column = message.charAt(17) - '0';
+
+                    matchController.setMossa(row, column);
+                }
+                else if (message.startsWith("Richiesta di partecipazione")) {
                     int separatorIndex = message.lastIndexOf(":");
                     if (separatorIndex > 0) {
                         String testo = message.substring(0, separatorIndex);

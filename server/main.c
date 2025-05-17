@@ -93,6 +93,7 @@ void* process(void * ptr){
         printf("socket prima del parser: %d\n", socket);
 
         const char *msg = "";
+        
         if(strstr(buffer, "Partita")!=NULL){
             msg=partitaParser(buffer, partite, socket);
         }else if(strstr(buffer, "Richiesta")!=NULL){

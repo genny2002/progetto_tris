@@ -38,6 +38,7 @@ public class MatchController {
     private HBox rigaDaEliminare;
     private static String nomeAvversario=null;
     private static String simboloGiocatore=null;    //simbolo del giocatore attuale (che sta giocando)
+    private static String simboloAvversario=null; //nome del giocatore attuale
     private static String idPartita=null; //id della partita corrente
 
     @FXML
@@ -80,10 +81,107 @@ public class MatchController {
         char row = button.getId().charAt(7); // Assuming the button ID is in the format "button_XX"
         char col=button.getId().charAt(8); // Extract the column part
 
-        String response = connessione.getClientSocket("Partita:putMove:" + row + "," + col + ":" + simboloGiocatore + ":" + idPartita);
-        //implementare putMove nel server
-        //disattivare i bottoni
-        //gestire l'altro giocatore
+        connessione.sendRequest(connessione.clientSocket, "Partita:putMove:" + row + "," + col + "," + simboloGiocatore + "," + idPartita);
+        button.setText(simboloGiocatore);
+        button_00.setDisable(true);
+        button_01.setDisable(true);
+        button_02.setDisable(true);
+        button_10.setDisable(true);
+        button_11.setDisable(true);
+        button_12.setDisable(true);
+        button_20.setDisable(true);
+        button_21.setDisable(true);
+        button_22.setDisable(true);
+    }
+
+    public void setMossa(int row, int column) {
+        Platform.runLater(() -> {
+            Button button = null;
+
+            switch (row) {
+                case 0:
+                    switch (column) {
+                        case 0:
+                            button = button_00;
+                            break;
+                        case 1:
+                            button = button_01;
+                            break;
+                        case 2:
+                            button = button_02;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case 1:
+                    switch (column) {
+                        case 0:
+                            button = button_10;
+                            break;
+                        case 1:
+                            button = button_11;
+                            break;
+                        case 2:
+                            button = button_12;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case 2:
+                    switch (column) {
+                        case 0:
+                            button = button_20;
+                            break;
+                        case 1:
+                            button = button_21;
+                            break;
+                        case 2:
+                            button = button_22;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            if (button != null) {
+                // Disabilita il pulsante
+                button.setDisable(true);
+                // Cambia il testo del pulsante in base al simbolo del giocatore
+                button.setText(simboloAvversario);
+            }
+
+            if(!(button_00.getText().equals("X")) && !(button_00.getText().equals("O"))){
+                button_00.setDisable(false);
+            }
+            if(!(button_01.getText().equals("X")) && !(button_01.getText().equals("O"))){
+                button_01.setDisable(false);
+            }
+            if(!(button_02.getText().equals("X")) && !(button_02.getText().equals("O"))){
+                button_02.setDisable(false);
+            }
+            if(!(button_10.getText().equals("X")) && !(button_10.getText().equals("O"))){
+                button_10.setDisable(false);
+            }
+            if(!(button_11.getText().equals("X")) && !(button_11.getText().equals("O"))){
+                button_11.setDisable(false);
+            }
+            if(!(button_12.getText().equals("X")) && !(button_12.getText().equals("O"))){
+                button_12.setDisable(false);
+            }
+            if(!(button_20.getText().equals("X")) && !(button_20.getText().equals("O"))){
+                button_20.setDisable(false);
+            }
+            if(!(button_21.getText().equals("X")) && !(button_21.getText().equals("O"))){
+                button_21.setDisable(false);
+            }
+            if(!(button_22.getText().equals("X")) && !(button_22.getText().equals("O"))){
+                button_22.setDisable(false);
+            }
+        });
     }
 
     public static void setClientSocket(Connessione newConnessione) {
@@ -134,11 +232,23 @@ public class MatchController {
     }
 
     public static void setSimbolo(String simbolo){
-        simboloGiocatore = simbolo;
+        if(simbolo.equals("X")){
+            simboloAvversario="O";
+            simboloGiocatore = "X";
+        }else{
+            simboloAvversario="X";
+            simboloGiocatore = "O";
+        }
     }
 
     public void setSimboloFromNotificaListener(String simbolo){
-        simboloGiocatore = simbolo;
+        if(simbolo.equals("X")){
+            simboloAvversario="O";
+            simboloGiocatore = "X";
+        }else{
+            simboloAvversario="X";
+            simboloGiocatore = "O";
+        }
 
         if(simboloGiocatore.equals("X")){
             button_00.setDisable(false);

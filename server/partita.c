@@ -25,6 +25,7 @@ char *partitaParser(char *buffer, partita_t *partite, int socketCreatore) {
 
     if(strcmp(nomeFunzione, "getPartiteInAttesa") == 0) response=getPartiteInAttesa(partite, socketCreatore);
     else if(strcmp(nomeFunzione, "putCreaPartita") == 0 ) response=putCreaPartita(partite, attributi, socketCreatore);
+    else if (strcmp(nomeFunzione, "putMove") == 0) response=putMove(partite, attributi);
     else return "Comando non riconosciuto\n\0";
 
     return response;
@@ -67,6 +68,12 @@ char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore
             strcpy(partite[i].stato, "in_attesa");
             partite[i].socketCreatore = socketCreatore;
 
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 3; k++) {
+                    partite[i].campo[j][k] = ' '; // Inizializza il campo di gioco
+                }
+            }
+
             char *response = malloc(1024); // Allocazione dinamica
             
             sprintf(response, "%d\n", partite[i].id);
@@ -78,4 +85,51 @@ char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore
     }
 
     return "Nessuna partita disponibile\n";
+}
+
+char *putMove(partita_t *partite, char *attributi) {
+    int idPartita;
+    int row, col;
+    char simbolo;
+    char *response = malloc(256);
+
+    // Parsing degli attributi
+    if (sscanf(attributi, "%d,%d,%c,%d", &row, &col, &simbolo, &idPartita) != 4) {
+        return "Formato input non valido\n";
+    }
+
+    // Verifica se la partita esiste
+    if (idPartita < 0 || idPartita >= MAX_PARTITE || strcmp(partite[idPartita].stato, "in_gioco") != 0) {
+        return "Partita non valida o non in corso\n";
+    }
+
+    // Verifica se la mossa è valida
+    if (row < 0 || row >= 3 || col < 0 || col >= 3 || partite[idPartita].campo[row][col] != ' ') {
+        return "Mossa non valida\n";
+    }
+
+    // Esegui la mossa
+    partite[idPartita].campo[row][col] = simbolo;
+
+    if(simbolo == partite[idPartita].simboloCreatore){
+        sprintf(response, "Mossa eseguita:%d:%d\n", row, col);
+        send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
+    }else{
+        sprintf(response, "Mossa eseguita:%d:%d\n", row, col);
+        send(partite[idPartita].socketCreatore, response, strlen(response), 0);
+    }
+
+    // Controlla se c'è un vincitore
+    /*if (controllaVittoria(partite[idPartita].campo, simbolo)) {
+        strcpy(partite[idPartita].stato, "terminata");
+        return "Giocatore ha vinto!\n";
+    }
+
+    // Controlla se ci sono pareggi
+    if (controllaPareggio(partite[idPartita].campo)) {
+        strcpy(partite[idPartita].stato, "terminata");
+        return "Pareggio!\n";
+    }*/
+
+    return "Mossa eseguita con successo\n";
 }
