@@ -33,6 +33,8 @@ public class HomePageController {
     Connessione connessione;
     public String nomeProprietario;
     private Thread notificaThreadHomePage;
+    private NotificaListener notificaListenerHomePage;
+    public String idNuovaPartita;
 
     public static void setNomeGiocatore(String nome) {
         nomeGiocatore = nome; // Metodo per impostare il nome del giocatore
@@ -49,6 +51,10 @@ public class HomePageController {
         }
 
         initPartiteInAttesa();
+
+        notificaListenerHomePage = new NotificaListener(connessione.clientSocket, this, null);
+        notificaThreadHomePage = new Thread(notificaListenerHomePage);
+        notificaThreadHomePage.start();
     }
 
     private void initPartiteInAttesa() {
@@ -100,8 +106,11 @@ public class HomePageController {
         }
 
         String response = connessione.getClientSocket("Richiesta:putSendRequest:" + idPartita + "," + nomeGiocatore + "," + nomeCreatore); 
-        notificaThreadHomePage = new Thread(new NotificaListener(connessione.clientSocket, this, statoRichiesta));
-        notificaThreadHomePage.start();
+        /*notificaThreadHomePage = new Thread(new NotificaListener(connessione.clientSocket, this, statoRichiesta));
+        notificaThreadHomePage.start();*/
+
+        notificaListenerHomePage.setStatoRichiesta(statoRichiesta);
+        
     }
 
     public void setRichiestaRifiutata(Text statoRichiesta) {
@@ -124,9 +133,10 @@ public class HomePageController {
 
     @FXML
     private void handleClickCreaNuovaPartitaButton() throws IOException {
-        String idPartita = connessione.getClientSocket("Partita:putCreaPartita:" + nomeGiocatore);
+        connessione.sendRequest(connessione.clientSocket, "Partita:putCreaPartita:" + nomeGiocatore);
+        //String idPartita = 
         MatchController.setClientSocket(connessione);
-        MatchController.setIdPartita(idPartita);
+        MatchController.setIdPartita(idNuovaPartita);
         App.setRoot("match");
     }    
 }

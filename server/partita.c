@@ -11,12 +11,10 @@ void inizializza_partite(partita_t *partite) {
     }
 }
 
-char *partitaParser(char *buffer, partita_t *partite, int socketCreatore) {
+char *partitaParser(char *buffer, partita_t *partite, int socketCreatore, int sockets[], int numero_sockets) {
     char nomeFunzione[50]={0}; 
     char attributi[150]={0};
     char *response;
-    
-    //char attr1[50], attr2[50];
 
     // Dividere la stringa in parti (ignora l'entità)
     if (sscanf(buffer, "%*[^:]:%49[^:]:%99[^\n]", nomeFunzione, attributi) < 1) {
@@ -24,7 +22,7 @@ char *partitaParser(char *buffer, partita_t *partite, int socketCreatore) {
     }
 
     if(strcmp(nomeFunzione, "getPartiteInAttesa") == 0) response=getPartiteInAttesa(partite, socketCreatore);
-    else if(strcmp(nomeFunzione, "putCreaPartita") == 0 ) response=putCreaPartita(partite, attributi, socketCreatore);
+    else if(strcmp(nomeFunzione, "putCreaPartita") == 0 ) response=putCreaPartita(partite, attributi, socketCreatore, sockets, numero_sockets);
     else if (strcmp(nomeFunzione, "putMove") == 0) response=putMove(partite, attributi);
     else return "Comando non riconosciuto\n\0";
 
@@ -61,7 +59,7 @@ char *getPartiteInAttesa(partita_t *partite, int socketCreatore) {
     return partiteInAttesa;
 }
 
-char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore) {
+char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore, int sockets[], int numero_sockets) {
     for (int i = 0; i < MAX_PARTITE; i++) {
         if(strcmp(partite[i].stato, "nuova_creazione") == 0 || strcmp(partite[i].stato, "terminata") == 0) {
             strcpy(partite[i].nomeCreatore, nomeGiocatore);
@@ -76,9 +74,12 @@ char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore
 
             char *response = malloc(1024); // Allocazione dinamica
             
-            sprintf(response, "%d\n", partite[i].id);
+            sprintf(response, "partita creata: %d\n", partite[i].id);
             send(socketCreatore, response, strlen(response), 0);
             printf("Message sent: %s alla socket %d\n", response, socketCreatore);
+            //INVIARE IL MESSAGGIO A TUTTI I CLIENT CONNESSI "partita in attesa"
+            sprintf(response, "%s ha creato una nuova partita, inviagli una richietsa per giocare\n", nomeGiocatore);
+            send_in_broadcast(sockets, numero_sockets, response);
 
             return "Partita creata con successo\n";
         }
@@ -99,7 +100,7 @@ char *putMove(partita_t *partite, char *attributi) {
     }
 
     // Verifica se la partita esiste
-    if (idPartita < 0 || idPartita >= MAX_PARTITE || strcmp(partite[idPartita].stato, "in_gioco") != 0) {
+    if (idPartita < 0 || idPartita >= MAX_PARTITE || strcmp(partite[idPartita].stato, "in_corso") != 0) {
         return "Partita non valida o non in corso\n";
     }
 
@@ -121,6 +122,7 @@ char *putMove(partita_t *partite, char *attributi) {
 
     if (controllaVittoria(partite[idPartita].campo, simbolo)) {
         strcpy(partite[idPartita].stato, "terminata");
+        // INVIARE IL MESSAGGIO A TUTTI I CLIENT CONNESSI "partita terminata"
 
         if(simbolo == partite[idPartita].simboloCreatore){
             response="Partita terminata: Hai vinto!\n";
@@ -135,6 +137,7 @@ char *putMove(partita_t *partite, char *attributi) {
         }
     }else if (controllaPareggio(partite[idPartita].campo)) {
         strcpy(partite[idPartita].stato, "terminata");
+        // INVIARE IL MESSAGGIO A TUTTI I CLIENT CONNESSI "partita terminata"
         response="Partita terminata: Pareggio!\n";
         send(partite[idPartita].socketCreatore, response, strlen(response), 0);
         send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
@@ -170,4 +173,17 @@ bool controllaPareggio(char campo[3][3]) {
         }
     }
     return true; // Nessuna mossa disponibile, quindi è un pareggio
+}
+
+void send_in_broadcast(int sockets[], int numero_sockets, char *message) {
+    printf("sono in send_in_broadcast\n");
+
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer), "broadcast:%s\n", message);
+
+    for (int i = 0; i < numero_sockets; i++) {
+        send(sockets[i], buffer, strlen(buffer), 0);
+    }
+
+    printf("Broadcast message sent in broadcast: %s\n", buffer);
 }

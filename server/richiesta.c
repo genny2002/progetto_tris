@@ -174,7 +174,7 @@ char *putAccettaRichiesta(char *attributi, coda_t *richieste, partita_t *partite
         // Modifica lo stato della partita
         srand(time(NULL));
         int idPartita = richiesta.idPartita;
-        strcpy(partite[idPartita].stato, "in_gioco");
+        strcpy(partite[idPartita].stato, "in_corso");
         partite[idPartita].socketGiocatore = richiesta.socketGiocatore;
         strcpy(partite[idPartita].nomeGiocatore, richiesta.nomeGiocatore);
         int randomValue = rand() % 2;

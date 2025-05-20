@@ -13,6 +13,8 @@
 
 partita_t partite[MAX_PARTITE];  // IL SERVER SUPPORTA AL MASSIMO 10 PARTITE
 coda_t richieste;
+int sockets[MAX_SOCKETS]; // Array per memorizzare i socket dei client
+int numero_sockets = 0; // Contatore per il numero di socket aperti
 
 void* process(void * ptr);
 
@@ -23,8 +25,6 @@ int main() {
 
     int sockfd, new_socket; //'sockfd' è la socket del server in cui riceve richieste di connessione, 'new_socket' è la socket del client con la quale il server comunica con il client
     int opt = 1;
-    //char buffer[1024] = {0};
-    //const char *msg = "id:1,nomeCreatore:Giocatore1/id:2,nomeCreatore:Giocatore2/id:3,nomeCreatore:Giocatore3";
     struct sockaddr_in servaddr, cliaddr;
     pthread_t thread_client;
 
@@ -72,6 +72,9 @@ int main() {
         int *client_socket_ptr = malloc(sizeof(int));
         *client_socket_ptr = new_socket;
 
+        sockets[numero_sockets] = new_socket; // Salvo il socket del client nell'array
+        numero_sockets++; // Incremento il contatore dei socket
+
         // Creo un thread per gestire la connessione
         if (pthread_create(&thread_client, NULL, process, (void *)client_socket_ptr) < 0) perror("Could not create thread"), exit(EXIT_FAILURE);
     }
@@ -95,7 +98,7 @@ void* process(void * ptr){
         const char *msg = "";
         
         if(strstr(buffer, "Partita")!=NULL){
-            msg=partitaParser(buffer, partite, socket);
+            msg=partitaParser(buffer, partite, socket, sockets, numero_sockets);
         }else if(strstr(buffer, "Richiesta")!=NULL){
             msg=richiestaParser(buffer, partite, socket, &richieste);
         }else{

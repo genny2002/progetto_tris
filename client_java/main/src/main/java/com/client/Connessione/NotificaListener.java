@@ -34,6 +34,10 @@ public class NotificaListener implements Runnable {
         this.statoRichiesta = statoRichiesta;
     }
 
+    public void setStatoRichiesta(Text statoRichiesta) {
+        this.statoRichiesta = statoRichiesta;
+    }
+
     @Override
     public void run() {
         try {
@@ -41,7 +45,22 @@ public class NotificaListener implements Runnable {
             String message;
 
             while (!Thread.currentThread().isInterrupted() && (message = reader.readLine()) != null) {
-                if(message.startsWith("Partita terminata")){
+                if(message.startsWith("partita creata")){
+                    String[] parts = message.split(":");
+                    String idPartita = parts[1].trim();
+                    System.out.println("ID ricevuto: " + idPartita);
+
+                    if(homePageController != null){
+                        homePageController.idNuovaPartita = idPartita;
+                        //homePageController.setPartitaCreata(idPartita, nomeProprietario, simboloCreatore, simboloGiocatore);
+                    }
+                }
+                else
+                
+                if(message.startsWith("Broadcast")){
+                    System.out.println(message);
+                }
+                else if(message.startsWith("Partita terminata")){
                     matchController.setPartitaTerminata(message);
                 }
                 else if(message.startsWith("Mossa eseguita")){
@@ -60,6 +79,7 @@ public class NotificaListener implements Runnable {
                     }
                 }else{
                     System.out.println(message);
+                    
                     if(message.contains("rifiutata")){
                         if(matchController!=null){
                             matchController.deleteNotifica();
@@ -69,7 +89,6 @@ public class NotificaListener implements Runnable {
                             homePageController.setRichiestaRifiutata(statoRichiesta);
                         }
                     }else if(message.contains("accettata")){
-
                         String[] parts = message.split(":");
                         String idRichiesta = parts[1].trim();
                         String nomeProprietario = parts[2].trim();
