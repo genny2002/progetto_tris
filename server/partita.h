@@ -30,7 +30,7 @@ char *partitaParser(char *buffer, partita_t *partite, int socketCreatore, int so
 char *getPartiteInAttesa(partita_t *partite, int socketCreatore);
 void inizializza_partite(partita_t *partite);
 char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore, int sockets[], int numero_sockets);
-char *putMove(partita_t *partite, char *attributi);
+char *putMove(partita_t *partite, char *attributi, int sockets[], int numero_sockets);
 bool controllaVittoria(char campo[3][3], char simbolo);
 bool controllaPareggio(char campo[3][3]);
 void send_in_broadcast(int sockets[], int numero_sockets, char *message);

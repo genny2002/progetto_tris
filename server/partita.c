@@ -23,7 +23,7 @@ char *partitaParser(char *buffer, partita_t *partite, int socketCreatore, int so
 
     if(strcmp(nomeFunzione, "getPartiteInAttesa") == 0) response=getPartiteInAttesa(partite, socketCreatore);
     else if(strcmp(nomeFunzione, "putCreaPartita") == 0 ) response=putCreaPartita(partite, attributi, socketCreatore, sockets, numero_sockets);
-    else if (strcmp(nomeFunzione, "putMove") == 0) response=putMove(partite, attributi);
+    else if (strcmp(nomeFunzione, "putMove") == 0) response=putMove(partite, attributi, sockets, numero_sockets);
     else return "Comando non riconosciuto\n\0";
 
     return response;
@@ -88,11 +88,12 @@ char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore
     return "Nessuna partita disponibile\n";
 }
 
-char *putMove(partita_t *partite, char *attributi) {
+char *putMove(partita_t *partite, char *attributi, int sockets[], int numero_sockets) {
     int idPartita;
     int row, col;
     char simbolo;
-    char *response = malloc(256);
+    char *response = malloc(1024);
+    char *msg = malloc(1024);
 
     // Parsing degli attributi
     if (sscanf(attributi, "%d,%d,%c,%d", &row, &col, &simbolo, &idPartita) != 4) {
@@ -129,11 +130,15 @@ char *putMove(partita_t *partite, char *attributi) {
             send(partite[idPartita].socketCreatore, response, strlen(response), 0);
             response="Partita terminata: Hai perso!\n";
             send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
+            sprintf(msg, "%s ha vinto contro %s\n", partite[idPartita].nomeCreatore, partite[idPartita].nomeGiocatore);
+            send_in_broadcast(sockets, numero_sockets, msg);
         }else{
             response="Partita terminata: Hai vinto!\n";
             send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
             response="Partita terminata: Hai perso!\n";
             send(partite[idPartita].socketCreatore, response, strlen(response), 0);
+            sprintf(msg, "%s ha vinto contro %s\n", partite[idPartita].nomeGiocatore, partite[idPartita].nomeCreatore);
+            send_in_broadcast(sockets, numero_sockets, msg);
         }
     }else if (controllaPareggio(partite[idPartita].campo)) {
         strcpy(partite[idPartita].stato, "terminata");
@@ -141,6 +146,8 @@ char *putMove(partita_t *partite, char *attributi) {
         response="Partita terminata: Pareggio!\n";
         send(partite[idPartita].socketCreatore, response, strlen(response), 0);
         send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
+        sprintf(msg, "Partita terminata: Pareggio tra %s e %s\n", partite[idPartita].nomeCreatore, partite[idPartita].nomeGiocatore);
+        send_in_broadcast(sockets, numero_sockets, msg);
     }
 
     return "Mossa eseguita con successo\n";
@@ -179,7 +186,7 @@ void send_in_broadcast(int sockets[], int numero_sockets, char *message) {
     printf("sono in send_in_broadcast\n");
 
     char buffer[1024];
-    snprintf(buffer, sizeof(buffer), "broadcast:%s\n", message);
+    snprintf(buffer, sizeof(buffer), "Broadcast:%s\n", message);
 
     for (int i = 0; i < numero_sockets; i++) {
         send(sockets[i], buffer, strlen(buffer), 0);

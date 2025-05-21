@@ -40,6 +40,9 @@ public class MatchController {
     private static String simboloGiocatore=null;    //simbolo del giocatore attuale (che sta giocando)
     private static String simboloAvversario=null; //nome del giocatore attuale
     private static String idPartita=null; //id della partita corrente
+    private static Thread notificaThreadHomePage;
+    private static NotificaListener notificaListenerHomePage;
+
 
     @FXML
     public void initialize() {
@@ -72,8 +75,7 @@ public class MatchController {
         button_21.setOnAction(e -> handleMove(button_21));
         button_22.setOnAction(e -> handleMove(button_22));
 
-        Thread notificaThread = new Thread(new NotificaListener(connessione.clientSocket, this));
-        notificaThread.start();
+        notificaListenerHomePage.setMatchController(this);
     }
 
     private void handleMove(Button button) {
@@ -270,6 +272,12 @@ public class MatchController {
 
     public static void setIdPartita(String id){
         idPartita = id;
+    }
+
+    public static String setThread(Thread notificaThread, NotificaListener notificaListener){
+        notificaThreadHomePage = notificaThread;
+        notificaListenerHomePage = notificaListener;
+        return idPartita;
     }
 }
 

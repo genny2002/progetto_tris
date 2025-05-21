@@ -38,6 +38,10 @@ public class NotificaListener implements Runnable {
         this.statoRichiesta = statoRichiesta;
     }
 
+    public void setMatchController(MatchController matchController) {
+        this.matchController = matchController;
+    }
+
     @Override
     public void run() {
         try {
@@ -45,19 +49,18 @@ public class NotificaListener implements Runnable {
             String message;
 
             while (!Thread.currentThread().isInterrupted() && (message = reader.readLine()) != null) {
-                if(message.startsWith("partita creata")){
+                if(message.startsWith("Richietsa inviata")){
+                    System.out.println("Richiesta inviata");
+                }
+                else if(message.startsWith("partita creata")){
                     String[] parts = message.split(":");
                     String idPartita = parts[1].trim();
-                    System.out.println("ID ricevuto: " + idPartita);
 
                     if(homePageController != null){
                         homePageController.idNuovaPartita = idPartita;
-                        //homePageController.setPartitaCreata(idPartita, nomeProprietario, simboloCreatore, simboloGiocatore);
                     }
                 }
-                else
-                
-                if(message.startsWith("Broadcast")){
+                else if(message.startsWith("Broadcast")){
                     System.out.println(message);
                 }
                 else if(message.startsWith("Partita terminata")){
@@ -77,35 +80,34 @@ public class NotificaListener implements Runnable {
 
                         matchController.addNuovaRichiesta(new Richiesta(id, testo, "in attesa"));
                     }
-                }else{
-                    System.out.println(message);
-                    
+                }else{                    
                     if(message.contains("rifiutata")){
                         if(matchController!=null){
                             matchController.deleteNotifica();
                         }
                     
-                        if(homePageController != null){
+                        if(homePageController != null && statoRichiesta != null){
                             homePageController.setRichiestaRifiutata(statoRichiesta);
                         }
                     }else if(message.contains("accettata")){
                         String[] parts = message.split(":");
                         String idRichiesta = parts[1].trim();
-                        String nomeProprietario = parts[2].trim();
-                        String nomeGiocatore = parts[3].trim();
-                        String simboloCreatore= parts[4].trim();
-                        String simboloGiocatore= parts[5].trim();
-                        String idPartita = parts[6].trim();
+                        String nomeAvversario = parts[2].trim();
+                        String simboloGiocatoreAttuale= parts[3].trim();
+                        String idPartita = parts[4].trim();
 
                         if(homePageController != null){
-                            homePageController.nomeProprietario = nomeProprietario;
-                            homePageController.setRichiestaAccettata(statoRichiesta, simboloGiocatore, idPartita);
+                            homePageController.nomeAvversario = nomeAvversario;
+
+                            if(statoRichiesta != null){
+                                homePageController.setRichiestaAccettata(statoRichiesta, simboloGiocatoreAttuale, idPartita);
+                            }   
                         }
 
                         if(matchController != null){
-                            matchController.setNomeAvversario(nomeGiocatore);
+                            matchController.setNomeAvversario(nomeAvversario);
                             matchController.setAvvisiLabel();
-                            matchController.setSimboloFromNotificaListener(simboloCreatore);
+                            matchController.setSimboloFromNotificaListener(simboloGiocatoreAttuale);
                         }
                     }
                 }

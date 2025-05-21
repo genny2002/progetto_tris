@@ -88,7 +88,8 @@ char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, c
 
     char *response = malloc(256);
 
-    sprintf(response, "Richiesta inviata al proprietario della partita %d\n", idPartita);
+    //sprintf(response, "Richiesta inviata al proprietario della partita %d\n", idPartita);
+    sprintf(response, "Richiesta inviata");
     send(socketGiocatore, response, strlen(response), 0);
 
     return response;
@@ -173,10 +174,13 @@ char *putAccettaRichiesta(char *attributi, coda_t *richieste, partita_t *partite
     }else{
         // Modifica lo stato della partita
         srand(time(NULL));
+
         int idPartita = richiesta.idPartita;
+
         strcpy(partite[idPartita].stato, "in_corso");
         partite[idPartita].socketGiocatore = richiesta.socketGiocatore;
         strcpy(partite[idPartita].nomeGiocatore, richiesta.nomeGiocatore);
+
         int randomValue = rand() % 2;
 
         if(randomValue == 0){
@@ -194,11 +198,11 @@ char *putAccettaRichiesta(char *attributi, coda_t *richieste, partita_t *partite
     printf("simboloCreatore: %c\n", partite[richiesta.idPartita].simboloCreatore); 
     printf("simboloGiocatore: %c\n", partite[richiesta.idPartita].simboloGiocatore); 
     
-    sprintf(response, "la richiesta %d è stata accettata:%d:%s:%s:%c:%c:%d\n", idRichiesta, idRichiesta, richiesta.nomeCreatore, richiesta.nomeGiocatore, partite[richiesta.idPartita].simboloCreatore, partite[richiesta.idPartita].simboloGiocatore, richiesta.idPartita);
-    
+    sprintf(response, "la richiesta %d è stata accettata:%d:%s:%c:%d\n", idRichiesta, idRichiesta, richiesta.nomeGiocatore, partite[richiesta.idPartita].simboloCreatore, richiesta.idPartita);
     send(richiesta.socketCreatore, response, strlen(response), 0);
     printf("Message sent: %s alla socket %d\n", response, richiesta.socketCreatore);
     
+    sprintf(response, "la richiesta %d è stata accettata:%d:%s:%c:%d\n", idRichiesta, idRichiesta, richiesta.nomeCreatore, partite[richiesta.idPartita].simboloGiocatore, richiesta.idPartita);
     send(richiesta.socketGiocatore, response, strlen(response), 0);
     printf("Message sent: %s alla socket %d\n", response, richiesta.socketGiocatore);
 

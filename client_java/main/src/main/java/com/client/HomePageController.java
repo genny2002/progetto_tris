@@ -31,7 +31,7 @@ public class HomePageController {
     private static String nomeGiocatore;
     List<Partita> partite;
     Connessione connessione;
-    public String nomeProprietario;
+    public String nomeAvversario;
     private Thread notificaThreadHomePage;
     private NotificaListener notificaListenerHomePage;
     public String idNuovaPartita;
@@ -70,8 +70,8 @@ public class HomePageController {
 
             // Aggiungi un'azione al pulsante "Partecipa"
             partecipaButton.setOnAction(e -> {
-                partecipaAPartita(partita.getId(), statoRichiesta);
                 statoRichiesta.setText("richiesta in attesa");
+                partecipaAPartita(partita.getId(), statoRichiesta);       
             });
 
             // Aggiungi gli elementi alla riga
@@ -105,12 +105,8 @@ public class HomePageController {
             }
         }
 
-        String response = connessione.getClientSocket("Richiesta:putSendRequest:" + idPartita + "," + nomeGiocatore + "," + nomeCreatore); 
-        /*notificaThreadHomePage = new Thread(new NotificaListener(connessione.clientSocket, this, statoRichiesta));
-        notificaThreadHomePage.start();*/
-
         notificaListenerHomePage.setStatoRichiesta(statoRichiesta);
-        
+        connessione.sendRequest(connessione.clientSocket, "Richiesta:putSendRequest:" + idPartita + "," + nomeGiocatore + "," + nomeCreatore);
     }
 
     public void setRichiestaRifiutata(Text statoRichiesta) {
@@ -120,25 +116,22 @@ public class HomePageController {
     public void setRichiestaAccettata(Text statoRichiesta, String simbolo, String idPartita) throws IOException  {
         statoRichiesta.setText("richiesta accettata");
 
-        if (notificaThreadHomePage != null && notificaThreadHomePage.isAlive()) {
-            notificaThreadHomePage.interrupt();
-        }
-
         MatchController.setClientSocket(connessione);
-        MatchController.setNomeAvversario(nomeProprietario);
+        MatchController.setNomeAvversario(nomeAvversario);
         MatchController.setSimbolo(simbolo);
         MatchController.setIdPartita(idPartita);
+        MatchController.setThread(notificaThreadHomePage, notificaListenerHomePage);
+
         App.setRoot("match");
     }
 
     @FXML
     private void handleClickCreaNuovaPartitaButton() throws IOException {
         connessione.sendRequest(connessione.clientSocket, "Partita:putCreaPartita:" + nomeGiocatore);
-        //String idPartita = 
+
         MatchController.setClientSocket(connessione);
         MatchController.setIdPartita(idNuovaPartita);
+        MatchController.setThread(notificaThreadHomePage, notificaListenerHomePage);
         App.setRoot("match");
     }    
 }
-
-
