@@ -10,6 +10,7 @@
 #include "config.h"
 #include "partita.h"
 #include "richiesta.h"
+#include "coda.h"
 
 partita_t partite[MAX_PARTITE];  // IL SERVER SUPPORTA AL MASSIMO 10 PARTITE
 coda_t richieste;
@@ -98,7 +99,7 @@ void* process(void * ptr){
         const char *msg = "";
         
         if(strstr(buffer, "Partita")!=NULL){
-            msg=partitaParser(buffer, partite, socket, sockets, numero_sockets);
+            msg=partitaParser(buffer, partite, socket, sockets, numero_sockets, &richieste);
         }else if(strstr(buffer, "Richiesta")!=NULL){
             msg=richiestaParser(buffer, partite, socket, &richieste);
         }else{

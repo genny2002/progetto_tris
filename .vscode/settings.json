@@ -7,6 +7,7 @@
         "string.h": "c",
         "pthread.h": "c",
         "stdio.h": "c",
-        "config.h": "c"
+        "config.h": "c",
+        "stdlib.h": "c"
     }
 }

@@ -2,6 +2,7 @@ package com.client;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Queue;
 
 import com.client.Connessione.NotificaListener; // Ensure this is the correct package for NotificaListener
@@ -12,7 +13,10 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
@@ -235,6 +239,27 @@ public class MatchController {
     
     public void setPartitaTerminata(String message) {
         Platform.runLater(() -> { Platform.runLater(() -> avvisi_label.setText(message)); });
+        Platform.runLater(() -> {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+                        
+            alert.setTitle("Partita terminata");
+            alert.setHeaderText("La partita è terminata!");
+            alert.setContentText("Vuoi giocare un'altra partita con lo stesso avversario?");
+                        
+            Optional<ButtonType> result = alert.showAndWait();
+                        
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                connessione.sendRequest(connessione.clientSocket, "Partita:putRematch:" + idPartita + ",1," + simboloGiocatore);
+            }else{
+                connessione.sendRequest(connessione.clientSocket, "Partita:putRematch:" + idPartita + ",-1," + simboloGiocatore);
+                
+                try {
+                    App.setRoot("homePage");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     public static void setSimbolo(String simbolo){
@@ -278,6 +303,48 @@ public class MatchController {
         notificaThreadHomePage = notificaThread;
         notificaListenerHomePage = notificaListener;
         return idPartita;
+    }
+
+    public void goToHomePage() throws IOException{
+        App.setRoot("homePage");
+    }
+
+    public void initButton(){
+        Platform.runLater(() -> {
+            button_00.setText("");
+            button_01.setText("");
+            button_02.setText("");
+            button_10.setText("");
+            button_11.setText("");
+            button_12.setText("");
+            button_20.setText("");
+            button_21.setText("");
+            button_22.setText("");
+    
+            if(simboloGiocatore.equals("X")){
+                button_00.setDisable(false);
+                button_01.setDisable(false);
+                button_02.setDisable(false);
+                button_10.setDisable(false);
+                button_11.setDisable(false);
+                button_12.setDisable(false);
+                button_20.setDisable(false);
+                button_21.setDisable(false);
+                button_22.setDisable(false);
+                isXTurn = true; // Il giocatore X inizia per primo
+            }else{
+                button_00.setDisable(true);
+                button_01.setDisable(true);
+                button_02.setDisable(true);
+                button_10.setDisable(true);
+                button_11.setDisable(true);
+                button_12.setDisable(true);
+                button_20.setDisable(true);
+                button_21.setDisable(true);
+                button_22.setDisable(true);
+                isXTurn = false;
+            }
+        });
     }
 }
 

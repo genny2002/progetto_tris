@@ -1,11 +1,17 @@
 package com.client.Connessione;
 
 import java.net.Socket;
+import java.util.Optional;
 
+import com.client.App;
 import com.client.HomePageController;
 import com.client.MatchController;
 import com.client.Model.Richiesta;
 
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
@@ -49,8 +55,56 @@ public class NotificaListener implements Runnable {
             String message;
 
             while (!Thread.currentThread().isInterrupted() && (message = reader.readLine()) != null) {
-                if(message.startsWith("Richietsa inviata")){
+                if(message.startsWith("Richiesta Rematch")){
+                    System.out.println("Il tuo avversario ha richiesto un rematch");
+
+                    final String finalMessage = message;
+                    
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle("Broadcast");
+                        alert.setHeaderText("Messaggio di sistema");
+                        alert.setContentText(finalMessage);
+                        alert.showAndWait();
+                    });
+                }
+                else if(message.startsWith("rematch accettato")){
+                    System.out.println("iniziate un'altra partita");
+
+                    String[] parts = message.split(":");
+                    String simboloGiocatoreAttuale = parts[1].trim();
+                    matchController.setSimboloFromNotificaListener(simboloGiocatoreAttuale);
+                    matchController.setAvvisiLabel();
+                    matchController.initButton();
+            
+                }
+                else if(message.startsWith("rematch rifiutato")){
+                    System.out.println("Il tuo avversario ha abbandonato la partita");
+
+                    final String finalMessage = message;
+                    
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle("Broadcast");
+                        alert.setHeaderText("Messaggio di sistema");
+                        alert.setContentText(finalMessage);
+                        alert.showAndWait();
+                    });
+
+                    matchController.goToHomePage();
+                }
+                else if(message.startsWith("Richietsa inviata")){
                     System.out.println("Richiesta inviata");
+
+                    final String finalMessage = message;
+                    
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle("Broadcast");
+                        alert.setHeaderText("Messaggio di sistema");
+                        alert.setContentText(finalMessage);
+                        alert.showAndWait();
+                    });
                 }
                 else if(message.startsWith("partita creata")){
                     String[] parts = message.split(":");
@@ -62,6 +116,15 @@ public class NotificaListener implements Runnable {
                 }
                 else if(message.startsWith("Broadcast")){
                     System.out.println(message);
+                    final String finalMessage = message;
+                    
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle("Broadcast");
+                        alert.setHeaderText("Messaggio di sistema");
+                        alert.setContentText(finalMessage.substring("Broadcast:".length()).trim());
+                        alert.showAndWait();
+                    });
                 }
                 else if(message.startsWith("Partita terminata")){
                     matchController.setPartitaTerminata(message);
@@ -69,6 +132,8 @@ public class NotificaListener implements Runnable {
                 else if(message.startsWith("Mossa eseguita")){
                     int row = (message.charAt(15)) - '0';
                     int column = message.charAt(17) - '0';
+
+                    System.out.println("Mossa eseguita: " + row + ", " + column);
 
                     matchController.setMossa(row, column);
                 }

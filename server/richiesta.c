@@ -1,6 +1,6 @@
 #include "richiesta.h"
 
-// Funzione per inizializzare la coda
+/*// Funzione per inizializzare la coda
 void inizializzaCoda(coda_t *coda) {
     coda->front = 0;
     coda->rear = -1;
@@ -39,7 +39,7 @@ bool dequeue(coda_t *coda, richiesta_t *richiesta) {
     coda->front = (coda->front + 1) % MAX_QUEUE_SIZE;
     coda->size--;
     return true;
-}
+}*/
 
 char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, coda_t *richieste) {
     char nomeFunzione[50]={0}; 
@@ -53,6 +53,7 @@ char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, cod
     if(strcmp(nomeFunzione, "putSendRequest") == 0) response=putSendRequest(partite, attributi, socketGiocatore, richieste);
     else if (strcmp(nomeFunzione, "deleteRifiutaRichiesta") == 0) response = deleteRifiutaRichiesta(attributi, richieste);
     else if (strcmp(nomeFunzione, "putAccettaRichiesta")==0) response = putAccettaRichiesta(attributi, richieste, partite);
+    //else if (strcmp(nomeFunzione, "putRematch")==0) response = putRematch(attributi, richieste, partite);
     else return "Comando non riconosciuto\n";
 
     return response;
@@ -221,10 +222,11 @@ void deleteEliminaRichiesteByPartitaId(coda_t *richieste, int idPartita) {
         }
     }
 
-    // Ricostruisci la coda senza le richieste da eliminare
+    // Aggiorna la coda con la nuova coda
     for (int i = 0; i < newSize; i++) {
         richieste->queue[i] = nuovaCoda[i];
     }
+
     richieste->front = 0;
     richieste->rear = newSize > 0 ? newSize - 1 : -1;
     richieste->size = newSize;

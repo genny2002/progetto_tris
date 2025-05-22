@@ -11,7 +11,7 @@ void inizializza_partite(partita_t *partite) {
     }
 }
 
-char *partitaParser(char *buffer, partita_t *partite, int socketCreatore, int sockets[], int numero_sockets) {
+char *partitaParser(char *buffer, partita_t *partite, int socketCreatore, int sockets[], int numero_sockets, coda_t *richieste) {
     char nomeFunzione[50]={0}; 
     char attributi[150]={0};
     char *response;
@@ -24,6 +24,7 @@ char *partitaParser(char *buffer, partita_t *partite, int socketCreatore, int so
     if(strcmp(nomeFunzione, "getPartiteInAttesa") == 0) response=getPartiteInAttesa(partite, socketCreatore);
     else if(strcmp(nomeFunzione, "putCreaPartita") == 0 ) response=putCreaPartita(partite, attributi, socketCreatore, sockets, numero_sockets);
     else if (strcmp(nomeFunzione, "putMove") == 0) response=putMove(partite, attributi, sockets, numero_sockets);
+    else if (strcmp(nomeFunzione, "putRematch")==0) response = putRematch(attributi, partite, richieste);
     else return "Comando non riconosciuto\n\0";
 
     return response;
@@ -65,6 +66,8 @@ char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore
             strcpy(partite[i].nomeCreatore, nomeGiocatore);
             strcpy(partite[i].stato, "in_attesa");
             partite[i].socketCreatore = socketCreatore;
+            partite[i].rematchCreatore = 0;
+            partite[i].rematchGiocatore = 0;
 
             for (int j = 0; j < 3; j++) {
                 for (int k = 0; k < 3; k++) {
@@ -79,7 +82,7 @@ char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore
             printf("Message sent: %s alla socket %d\n", response, socketCreatore);
             //INVIARE IL MESSAGGIO A TUTTI I CLIENT CONNESSI "partita in attesa"
             sprintf(response, "%s ha creato una nuova partita, inviagli una richietsa per giocare\n", nomeGiocatore);
-            send_in_broadcast(sockets, numero_sockets, response);
+            send_in_broadcast(sockets, numero_sockets, response, socketCreatore, -1);
 
             return "Partita creata con successo\n";
         }
@@ -89,6 +92,7 @@ char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore
 }
 
 char *putMove(partita_t *partite, char *attributi, int sockets[], int numero_sockets) {
+    printf("sono in putMove\n");
     int idPartita;
     int row, col;
     char simbolo;
@@ -114,16 +118,19 @@ char *putMove(partita_t *partite, char *attributi, int sockets[], int numero_soc
     partite[idPartita].campo[row][col] = simbolo;
 
     if(simbolo == partite[idPartita].simboloCreatore){
+        printf("il creatore ha fatto una mossa\n");
         sprintf(response, "Mossa eseguita:%d:%d\n", row, col);
         send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
+        printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketGiocatore);
     }else{
+        printf("il giocatore ha fatto una mossa\n");
         sprintf(response, "Mossa eseguita:%d:%d\n", row, col);
         send(partite[idPartita].socketCreatore, response, strlen(response), 0);
+        printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketGiocatore);
     }
 
     if (controllaVittoria(partite[idPartita].campo, simbolo)) {
         strcpy(partite[idPartita].stato, "terminata");
-        // INVIARE IL MESSAGGIO A TUTTI I CLIENT CONNESSI "partita terminata"
 
         if(simbolo == partite[idPartita].simboloCreatore){
             response="Partita terminata: Hai vinto!\n";
@@ -131,23 +138,22 @@ char *putMove(partita_t *partite, char *attributi, int sockets[], int numero_soc
             response="Partita terminata: Hai perso!\n";
             send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
             sprintf(msg, "%s ha vinto contro %s\n", partite[idPartita].nomeCreatore, partite[idPartita].nomeGiocatore);
-            send_in_broadcast(sockets, numero_sockets, msg);
+            send_in_broadcast(sockets, numero_sockets, msg, partite[idPartita].socketCreatore, partite[idPartita].socketGiocatore);
         }else{
             response="Partita terminata: Hai vinto!\n";
             send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
             response="Partita terminata: Hai perso!\n";
             send(partite[idPartita].socketCreatore, response, strlen(response), 0);
             sprintf(msg, "%s ha vinto contro %s\n", partite[idPartita].nomeGiocatore, partite[idPartita].nomeCreatore);
-            send_in_broadcast(sockets, numero_sockets, msg);
+            send_in_broadcast(sockets, numero_sockets, msg, partite[idPartita].socketCreatore, partite[idPartita].socketGiocatore);
         }
     }else if (controllaPareggio(partite[idPartita].campo)) {
         strcpy(partite[idPartita].stato, "terminata");
-        // INVIARE IL MESSAGGIO A TUTTI I CLIENT CONNESSI "partita terminata"
         response="Partita terminata: Pareggio!\n";
         send(partite[idPartita].socketCreatore, response, strlen(response), 0);
         send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
         sprintf(msg, "Partita terminata: Pareggio tra %s e %s\n", partite[idPartita].nomeCreatore, partite[idPartita].nomeGiocatore);
-        send_in_broadcast(sockets, numero_sockets, msg);
+        send_in_broadcast(sockets, numero_sockets, msg, partite[idPartita].socketCreatore, partite[idPartita].socketGiocatore);
     }
 
     return "Mossa eseguita con successo\n";
@@ -182,15 +188,120 @@ bool controllaPareggio(char campo[3][3]) {
     return true; // Nessuna mossa disponibile, quindi è un pareggio
 }
 
-void send_in_broadcast(int sockets[], int numero_sockets, char *message) {
+void send_in_broadcast(int sockets[], int numero_sockets, char *message, int socket1, int socket2) {
     printf("sono in send_in_broadcast\n");
 
     char buffer[1024];
     snprintf(buffer, sizeof(buffer), "Broadcast:%s\n", message);
 
     for (int i = 0; i < numero_sockets; i++) {
-        send(sockets[i], buffer, strlen(buffer), 0);
+        if(sockets[i] != socket1 && sockets[i] != socket2) {
+            send(sockets[i], buffer, strlen(buffer), 0);
+        }
+        
     }
 
     printf("Broadcast message sent in broadcast: %s\n", buffer);
+}
+
+char *putRematch(char *attributi, partita_t *partite, coda_t *richieste) {
+    int idPartita;
+    int valoreRematch;
+    char simbolo;
+    char *response = malloc(1024);
+
+    if (sscanf(attributi, "%d,%d,%c", &idPartita, &valoreRematch, &simbolo) != 3) {
+        return "Formato input non valido\n";
+    }
+
+    if (simbolo == partite[idPartita].simboloCreatore) {
+        partite[idPartita].rematchCreatore = valoreRematch;
+    } else if (simbolo == partite[idPartita].simboloGiocatore) {
+        partite[idPartita].rematchGiocatore = valoreRematch;
+    }
+
+    if(partite[idPartita].rematchCreatore==-1){
+        sprintf(response, "rematch rifiutato\n");
+        send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
+        printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketGiocatore);
+        eliminaRichiestaByPartitaId(idPartita, richieste);
+    }else if(partite[idPartita].rematchGiocatore==-1){
+        sprintf(response, "rematch rifiutato\n");
+        send(partite[idPartita].socketCreatore, response, strlen(response), 0);
+        printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketCreatore);
+        eliminaRichiestaByPartitaId(idPartita, richieste);
+    }else if(partite[idPartita].rematchCreatore==1 && partite[idPartita].rematchGiocatore==1){
+        srand(time(NULL));
+        strcpy(partite[idPartita].stato, "in_corso");
+
+        for (int j = 0; j < 3; j++) {
+            for (int k = 0; k < 3; k++) {
+                partite[idPartita].campo[j][k] = ' '; // Inizializza il campo di gioco
+            }
+        }
+        
+        int randomValue = rand() % 2;
+
+        if(randomValue == 0){
+            partite[idPartita].simboloGiocatore = 'X';
+            partite[idPartita].simboloCreatore = 'O';
+        }else{
+            partite[idPartita].simboloGiocatore = 'O';
+            partite[idPartita].simboloCreatore = 'X';
+        }
+
+        sprintf(response, "rematch accettato:%c\n", partite[idPartita].simboloCreatore);
+        send(partite[idPartita].socketCreatore, response, strlen(response), 0);
+        printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketCreatore);
+
+        sprintf(response, "rematch accettato:%c\n", partite[idPartita].simboloGiocatore);
+        send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
+        printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketGiocatore);
+    }else if(partite[idPartita].rematchCreatore==1){
+        sprintf(response, "Richiesta Rematch: Il giocatore %s vuole giocare di nuovo\n", partite[idPartita].nomeCreatore);
+        send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
+        printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketGiocatore);
+    }else if(partite[idPartita].rematchGiocatore==1){
+        sprintf(response, "Richiesta Rematch: Il giocatore %s vuole giocare di nuovo\n", partite[idPartita].nomeGiocatore);
+        send(partite[idPartita].socketCreatore, response, strlen(response), 0);
+        printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketCreatore);
+    }  
+
+    return response;
+}
+
+void eliminaRichiestaByPartitaId(int idPartita, coda_t* coda) {
+    if (isCodaVuota(coda)) {
+        printf("La coda è vuota. Nessuna richiesta da eliminare.\n");
+        return;
+    }
+
+    coda_t tempQueue;
+    inizializzaCoda(&tempQueue);
+
+    int found = 0;
+
+    // Esamina ogni elemento nella coda originale
+    for (int i = 0; i < coda->size; i++) {
+        int currentIndex = (coda->front + i) % MAX_QUEUE_SIZE;
+
+        if (coda->queue[currentIndex].idPartita == idPartita) {
+            // Trovato l'elemento da eliminare
+            found = 1;
+        } else {
+            // Aggiungi alla coda temporanea gli altri elementi
+            tempQueue.queue[(tempQueue.rear + 1) % MAX_QUEUE_SIZE] = coda->queue[currentIndex];
+            tempQueue.rear = (tempQueue.rear + 1) % MAX_QUEUE_SIZE;
+            tempQueue.size++;
+        }
+    }
+
+    if (found) {
+        printf("Richiesta con idPartita %d eliminata.\n", idPartita);
+    } else {
+        printf("Richiesta con idPartita %d non trovata.\n", idPartita);
+    }
+
+    // Copia la coda temporanea nella coda originale
+    *coda = tempQueue;
 }
