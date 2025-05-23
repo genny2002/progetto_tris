@@ -6,8 +6,8 @@ void inizializza_partite(partita_t *partite) {
         strcpy(partite[i].stato, "nuova_creazione");
         strcpy(partite[i].nomeCreatore, "");
         strcpy(partite[i].nomeGiocatore, "");
-        partite[i].socketCreatore = -1; // Inizializza il socket a -1 per indicare che non è connesso
-        partite[i].socketGiocatore = -1; // Inizializza il socket a -1 per indicare che non è connesso
+        partite[i].socketCreatore = -1;
+        partite[i].socketGiocatore = -1;
     }
 }
 
@@ -16,7 +16,6 @@ char *partitaParser(char *buffer, partita_t *partite, int socketCreatore, int so
     char attributi[150]={0};
     char *response;
 
-    // Dividere la stringa in parti (ignora l'entità)
     if (sscanf(buffer, "%*[^:]:%49[^:]:%99[^\n]", nomeFunzione, attributi) < 1) {
         return "Formato input non valido\n";
     }
@@ -31,32 +30,27 @@ char *partitaParser(char *buffer, partita_t *partite, int socketCreatore, int so
 }
 
 char *getPartiteInAttesa(partita_t *partite, int socketCreatore) {
-    char *partiteInAttesa = malloc(1024); // Allocazione dinamica
+    char *partiteInAttesa = malloc(1024);
 
     if (partiteInAttesa == NULL) {
         return "Errore di allocazione memoria\n";
     }
 
-    partiteInAttesa[0] = '\0'; // Inizializza la stringa vuota
+    partiteInAttesa[0] = '\0';
 
     for (int i = 0; i < MAX_PARTITE; i++) {
         if(strcmp(partite[i].stato, "in_attesa") == 0) {
-            char buffer[100]; // Buffer temporaneo per concatenare i dati
+            char buffer[100];
 
             sprintf(buffer, "id:%d,nomeCreatore:%s/", i, partite[i].nomeCreatore);
             strcat(partiteInAttesa, buffer);
         }
     }
 
-    strcat(partiteInAttesa, "\n"); // Aggiungi un terminatore di riga alla fine
-
-    // Invio del messaggio al client
+    strcat(partiteInAttesa, "\n");
     send(socketCreatore, partiteInAttesa, strlen(partiteInAttesa), 0);
     printf("Message sent: %s alla socket %d\n", partiteInAttesa, socketCreatore);
 
-    // Chiusura dei socket
-    
-    //close(socketCreatore);
     return partiteInAttesa;
 }
 
@@ -71,16 +65,16 @@ char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore
 
             for (int j = 0; j < 3; j++) {
                 for (int k = 0; k < 3; k++) {
-                    partite[i].campo[j][k] = ' '; // Inizializza il campo di gioco
+                    partite[i].campo[j][k] = ' ';
                 }
             }
 
-            char *response = malloc(1024); // Allocazione dinamica
+            char *response = malloc(1024);
             
             sprintf(response, "partita creata: %d\n", partite[i].id);
             send(socketCreatore, response, strlen(response), 0);
             printf("Message sent: %s alla socket %d\n", response, socketCreatore);
-            //INVIARE IL MESSAGGIO A TUTTI I CLIENT CONNESSI "partita in attesa"
+
             sprintf(response, "%s ha creato una nuova partita, inviagli una richietsa per giocare\n", nomeGiocatore);
             send_in_broadcast(sockets, numero_sockets, response, socketCreatore, -1);
 
@@ -99,22 +93,18 @@ char *putMove(partita_t *partite, char *attributi, int sockets[], int numero_soc
     char *response = malloc(1024);
     char *msg = malloc(1024);
 
-    // Parsing degli attributi
     if (sscanf(attributi, "%d,%d,%c,%d", &row, &col, &simbolo, &idPartita) != 4) {
         return "Formato input non valido\n";
     }
 
-    // Verifica se la partita esiste
     if (idPartita < 0 || idPartita >= MAX_PARTITE || strcmp(partite[idPartita].stato, "in_corso") != 0) {
         return "Partita non valida o non in corso\n";
     }
 
-    // Verifica se la mossa è valida
     if (row < 0 || row >= 3 || col < 0 || col >= 3 || partite[idPartita].campo[row][col] != ' ') {
         return "Mossa non valida\n";
     }
 
-    // Esegui la mossa
     partite[idPartita].campo[row][col] = simbolo;
 
     if(simbolo == partite[idPartita].simboloCreatore){
@@ -160,7 +150,6 @@ char *putMove(partita_t *partite, char *attributi, int sockets[], int numero_soc
 }
 
 bool controllaVittoria(char campo[3][3], char simbolo) {
-    // Controlla righe e colonne
     for (int i = 0; i < 3; i++) {
         if ((campo[i][0] == simbolo && campo[i][1] == simbolo && campo[i][2] == simbolo) ||
             (campo[0][i] == simbolo && campo[1][i] == simbolo && campo[2][i] == simbolo)) {
@@ -168,7 +157,6 @@ bool controllaVittoria(char campo[3][3], char simbolo) {
         }
     }
 
-    // Controlla diagonali
     if ((campo[0][0] == simbolo && campo[1][1] == simbolo && campo[2][2] == simbolo) ||
         (campo[0][2] == simbolo && campo[1][1] == simbolo && campo[2][0] == simbolo)) {
         return true;
@@ -181,11 +169,11 @@ bool controllaPareggio(char campo[3][3]) {
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             if (campo[i][j] == ' ') {
-                return false; // C'è ancora una mossa disponibile
+                return false;
             }
         }
     }
-    return true; // Nessuna mossa disponibile, quindi è un pareggio
+    return true;
 }
 
 void send_in_broadcast(int sockets[], int numero_sockets, char *message, int socket1, int socket2) {
@@ -236,7 +224,7 @@ char *putRematch(char *attributi, partita_t *partite, coda_t *richieste) {
 
         for (int j = 0; j < 3; j++) {
             for (int k = 0; k < 3; k++) {
-                partite[idPartita].campo[j][k] = ' '; // Inizializza il campo di gioco
+                partite[idPartita].campo[j][k] = ' ';
             }
         }
         
@@ -286,10 +274,8 @@ void eliminaRichiestaByPartitaId(int idPartita, coda_t* coda) {
         int currentIndex = (coda->front + i) % MAX_QUEUE_SIZE;
 
         if (coda->queue[currentIndex].idPartita == idPartita) {
-            // Trovato l'elemento da eliminare
             found = 1;
         } else {
-            // Aggiungi alla coda temporanea gli altri elementi
             tempQueue.queue[(tempQueue.rear + 1) % MAX_QUEUE_SIZE] = coda->queue[currentIndex];
             tempQueue.rear = (tempQueue.rear + 1) % MAX_QUEUE_SIZE;
             tempQueue.size++;
@@ -302,6 +288,5 @@ void eliminaRichiestaByPartitaId(int idPartita, coda_t* coda) {
         printf("Richiesta con idPartita %d non trovata.\n", idPartita);
     }
 
-    // Copia la coda temporanea nella coda originale
     *coda = tempQueue;
 }

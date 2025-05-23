@@ -11,7 +11,6 @@
 
 #include "config.h"
 #include "coda.h"
-//#include "richiesta.h"
 
 typedef struct {
     int id;
@@ -26,7 +25,7 @@ typedef struct {
     int socketGiocatore;
     char simboloCreatore;
     char simboloGiocatore;
-    char campo[3][3]; // Campo di gioco 3x3
+    char campo[3][3];
     int rematchCreatore;
     int rematchGiocatore;
 } partita_t;

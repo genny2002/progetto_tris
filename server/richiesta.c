@@ -1,46 +1,5 @@
 #include "richiesta.h"
 
-/*// Funzione per inizializzare la coda
-void inizializzaCoda(coda_t *coda) {
-    coda->front = 0;
-    coda->rear = -1;
-    coda->size = 0;
-}
-
-// Funzione per verificare se la coda è piena
-bool isCodaPiena(coda_t *coda) {
-    return coda->size == MAX_QUEUE_SIZE;
-}
-
-// Funzione per verificare se la coda è vuota
-bool isCodaVuota(coda_t *coda) {
-    return coda->size == 0;
-}
-
-// Funzione per inserire un elemento nella coda
-bool enqueue(coda_t *coda, richiesta_t richiesta) {
-    if (isCodaPiena(coda)) {
-        printf("Errore: la coda è piena!\n");
-        return false;
-    }
-    coda->rear = (coda->rear + 1) % MAX_QUEUE_SIZE;
-    coda->queue[coda->rear] = richiesta;
-    coda->size++;
-    return true;
-}
-
-// Funzione per rimuovere un elemento dalla coda
-bool dequeue(coda_t *coda, richiesta_t *richiesta) {
-    if (isCodaVuota(coda)) {
-        printf("Errore: la coda è vuota!\n");
-        return false;
-    }
-    *richiesta = coda->queue[coda->front];
-    coda->front = (coda->front + 1) % MAX_QUEUE_SIZE;
-    coda->size--;
-    return true;
-}*/
-
 char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, coda_t *richieste) {
     char nomeFunzione[50]={0}; 
     char attributi[150]={0};
@@ -53,7 +12,6 @@ char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, cod
     if(strcmp(nomeFunzione, "putSendRequest") == 0) response=putSendRequest(partite, attributi, socketGiocatore, richieste);
     else if (strcmp(nomeFunzione, "deleteRifiutaRichiesta") == 0) response = deleteRifiutaRichiesta(attributi, richieste);
     else if (strcmp(nomeFunzione, "putAccettaRichiesta")==0) response = putAccettaRichiesta(attributi, richieste, partite);
-    //else if (strcmp(nomeFunzione, "putRematch")==0) response = putRematch(attributi, richieste, partite);
     else return "Comando non riconosciuto\n";
 
     return response;
@@ -64,7 +22,6 @@ char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, c
     char nomeGiocatore[50];
     char nomeCreatore[50];
 
-    // Parsing con ',' come separatore e un terzo attributo
     if (sscanf(attributi, "%d,%49[^,],%49s", &idPartita, nomeGiocatore, nomeCreatore) != 3) {
         return "Formato input non valido\n";
     }
@@ -78,18 +35,18 @@ char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, c
     }
     
     richiesta_t nuovaRichiesta;
+
     nuovaRichiesta.idPartita = idPartita;
     strcpy(nuovaRichiesta.nomeCreatore, nomeCreatore);
     strcpy(nuovaRichiesta.nomeGiocatore, nomeGiocatore);
     nuovaRichiesta.socketCreatore = partite[idPartita].socketCreatore;
     nuovaRichiesta.socketGiocatore = socketGiocatore;
-    nuovaRichiesta.idRichiesta = nuovaRichiesta.socketCreatore*10+nuovaRichiesta.socketGiocatore; // ID della richiesta
+    nuovaRichiesta.idRichiesta = nuovaRichiesta.socketCreatore*10+nuovaRichiesta.socketGiocatore;
     enqueue(richieste, nuovaRichiesta);
     notificaProprietario(nuovaRichiesta.socketCreatore, nomeGiocatore, nuovaRichiesta.idRichiesta);
 
     char *response = malloc(256);
 
-    //sprintf(response, "Richiesta inviata al proprietario della partita %d\n", idPartita);
     sprintf(response, "Richiesta inviata");
     send(socketGiocatore, response, strlen(response), 0);
 
@@ -97,7 +54,7 @@ char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, c
 }
 
 void notificaProprietario(int socketProprietario, char* nomeGiocatore, int idRichiesta) { 
-    char messaggio[256]; // Usa un array locale
+    char messaggio[256];
     
     sprintf(messaggio, "Richiesta di partecipazione. Il giocatore %s ha chiesto di partecipare alla tua partita:%d\n", nomeGiocatore, idRichiesta);
     send(socketProprietario, messaggio, strlen(messaggio), 0);
@@ -109,14 +66,13 @@ char *deleteRifiutaRichiesta(char *attributi, coda_t *richieste) {
     int foundIndex = -1;
     char *response = malloc(256);
 
-    // Parsing con ',' come separatore e un terzo attributo
     if (sscanf(attributi, "%d", &idRichiesta) != 1) {
         sprintf(response, "Formato input non valido\n");
     }
 
     // Cerca la richiesta nella coda
     for (int i = 0; i < richieste->size; i++) {
-        int index = (richieste->front + i) % MAX_QUEUE_SIZE; // Posizione effettiva
+        int index = (richieste->front + i) % MAX_QUEUE_SIZE;
         if (richieste->queue[index].idRichiesta == idRichiesta) {
             foundIndex = index;
             richiesta = richieste->queue[index];
@@ -162,7 +118,7 @@ char *putAccettaRichiesta(char *attributi, coda_t *richieste, partita_t *partite
 
     // Cerca la richiesta nella coda
     for (int i = 0; i < richieste->size; i++) {
-        int index = (richieste->front + i) % MAX_QUEUE_SIZE; // Posizione effettiva
+        int index = (richieste->front + i) % MAX_QUEUE_SIZE;
         if (richieste->queue[index].idRichiesta == idRichiesta) {
             foundIndex = index;
             richiesta = richieste->queue[index];
@@ -173,7 +129,6 @@ char *putAccettaRichiesta(char *attributi, coda_t *richieste, partita_t *partite
     if (foundIndex == -1) {
         sprintf(response, "Richiesta non trovata\n");
     }else{
-        // Modifica lo stato della partita
         srand(time(NULL));
 
         int idPartita = richiesta.idPartita;
@@ -222,7 +177,6 @@ void deleteEliminaRichiesteByPartitaId(coda_t *richieste, int idPartita) {
         }
     }
 
-    // Aggiorna la coda con la nuova coda
     for (int i = 0; i < newSize; i++) {
         richieste->queue[i] = nuovaCoda[i];
     }

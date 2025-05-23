@@ -2,14 +2,10 @@ package com.client.Connessione;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.List;
-
-import com.client.Model.Partita;
 
 public class Connessione {
     private static final int MAX_RESPONSE_SIZE = 1024;
@@ -21,7 +17,6 @@ public class Connessione {
         int port = 5050;
 
         try {
-            // Crea il socket e connettiti al server
             socket = new Socket(serverAddress, port);
             System.out.println("Connessione al server riuscita: " + serverAddress + ":" + port);
         } catch (UnknownHostException e) {
@@ -51,7 +46,7 @@ public class Connessione {
         try {
             OutputStream outputStream = socket.getOutputStream();
             outputStream.write(request.getBytes());
-            outputStream.flush(); // Assicurati che i dati vengano inviati immediatamente
+            outputStream.flush();
         } catch (IOException e) {
             System.err.println("Errore durante l'invio della richiesta");
 
@@ -64,7 +59,7 @@ public class Connessione {
         StringBuilder response = new StringBuilder();
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String line = reader.readLine(); // Reads until '\n'
+            String line = reader.readLine();
 
             if (line != null) {
                 response.append(line);

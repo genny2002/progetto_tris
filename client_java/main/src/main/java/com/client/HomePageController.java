@@ -1,6 +1,5 @@
 package com.client;
 
-import javafx.css.Match;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -15,8 +14,6 @@ import java.util.List;
 import com.client.Connessione.Connessione;
 import com.client.Connessione.NotificaListener;
 import com.client.Model.Partita;
-
-import java.net.Socket;
 
 public class HomePageController {
     @FXML
@@ -37,7 +34,7 @@ public class HomePageController {
     public String idNuovaPartita;
 
     public static void setNomeGiocatore(String nome) {
-        nomeGiocatore = nome; // Metodo per impostare il nome del giocatore
+        nomeGiocatore = nome;
     }
 
     @FXML
@@ -58,26 +55,21 @@ public class HomePageController {
     }
 
     public void initPartiteInAttesa() {
-        // Simula il caricamento delle partite in attesa
         this.partite = getPartiteInAttesa();
 
         for (Partita partita : partite) {
-            HBox riga = new HBox(10); // Layout orizzontale per ogni partita
+            HBox riga = new HBox(10);
             Text idPartita = new Text("ID: " + partita.getId());
             Text nomeCreatore = new Text("Creatore: " + partita.getNomeCreatore());
             Button partecipaButton = new Button("Partecipa");
             Text statoRichiesta = new Text("");
 
-            // Aggiungi un'azione al pulsante "Partecipa"
             partecipaButton.setOnAction(e -> {
                 statoRichiesta.setText("richiesta in attesa");
                 partecipaAPartita(partita.getId(), statoRichiesta);       
             });
 
-            // Aggiungi gli elementi alla riga
             riga.getChildren().addAll(idPartita, nomeCreatore, partecipaButton, statoRichiesta);
-
-            // Aggiungi la riga al ListView
             partite_list.getItems().add(riga);
         }
     }
@@ -87,7 +79,7 @@ public class HomePageController {
         
         if (partiteString == null || partiteString.isEmpty()) {
             System.out.println("Nessuna partita in attesa.");
-            return new ArrayList<>(); // Restituisce una lista vuota se non ci sono partite
+            return new ArrayList<>();
         }
 
         List<Partita> partite = Partita.convertToObjects(partiteString);

@@ -21,8 +21,6 @@ public class Partita {
 
     public static ArrayList<Partita> convertToObjects(String partiteString) {
         ArrayList<Partita> partite = new ArrayList<>();
-
-        //id:1,nomeCreatore:Giocatore1/id:2,nomeCreatore:Giocatore2/id:3,nomeCreatore:Giocatore3/
         String[] partiteArray = partiteString.split("/");
 
         for (String p : partiteArray) {

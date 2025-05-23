@@ -21,7 +21,7 @@ void* process(void * ptr);
 
 int main() {
     printf("Server started...\n");
-    inizializza_partite(partite); // Inizializza l'array di partite
+    inizializza_partite(partite);
     inizializzaCoda(&richieste);
 
     int sockfd, new_socket; //'sockfd' è la socket del server in cui riceve richieste di connessione, 'new_socket' è la socket del client con la quale il server comunica con il client
@@ -73,8 +73,8 @@ int main() {
         int *client_socket_ptr = malloc(sizeof(int));
         *client_socket_ptr = new_socket;
 
-        sockets[numero_sockets] = new_socket; // Salvo il socket del client nell'array
-        numero_sockets++; // Incremento il contatore dei socket
+        sockets[numero_sockets] = new_socket;
+        numero_sockets++;
 
         // Creo un thread per gestire la connessione
         if (pthread_create(&thread_client, NULL, process, (void *)client_socket_ptr) < 0) perror("Could not create thread"), exit(EXIT_FAILURE);
@@ -94,7 +94,6 @@ void* process(void * ptr){
         if (n <= 0) break; // Client ha chiuso la connessione
 
         printf("Received: \"%s\"\n", buffer);
-        printf("socket prima del parser: %d\n", socket);
 
         const char *msg = "";
         
@@ -103,11 +102,10 @@ void* process(void * ptr){
         }else if(strstr(buffer, "Richiesta")!=NULL){
             msg=richiestaParser(buffer, partite, socket, &richieste);
         }else{
-            break; // chiudi la connessione se il comando non è riconosciuto
+            break;
         }
-        // Puoi inviare la risposta qui se necessario
-        // send(socket, msg, strlen(msg), 0);
     }
     close(socket);
+    
     return NULL;
 }

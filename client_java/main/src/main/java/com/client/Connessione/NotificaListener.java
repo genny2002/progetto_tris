@@ -1,9 +1,7 @@
 package com.client.Connessione;
 
 import java.net.Socket;
-import java.util.Optional;
 
-import com.client.App;
 import com.client.HomePageController;
 import com.client.MatchController;
 import com.client.Model.Richiesta;
@@ -11,11 +9,9 @@ import com.client.Model.Richiesta;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
-import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -85,7 +81,7 @@ public class NotificaListener implements Runnable {
                     
                     Platform.runLater(() -> {
                         if (matchController != null) {
-                            matchController.closePartitaTerminataAlert(); // <--- chiudi il popup
+                            matchController.closePartitaTerminataAlert();
                         }
 
                         Alert alert = new Alert(AlertType.INFORMATION);

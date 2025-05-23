@@ -1,13 +1,12 @@
 package com.client;
 import java.io.IOException;
-import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Queue;
 
-import com.client.Connessione.NotificaListener; // Ensure this is the correct package for NotificaListener
+import com.client.Connessione.NotificaListener;
 import com.client.Model.Richiesta;
-import com.client.Connessione.Connessione; // Ensure this is the correct package for NotificaListener
+import com.client.Connessione.Connessione;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -42,8 +41,8 @@ public class MatchController {
     private HBox rigaDaEliminare;
     private static String nomeAvversario=null;
     private static String simboloGiocatore=null;    //simbolo del giocatore attuale (che sta giocando)
-    private static String simboloAvversario=null; //nome del giocatore attuale
-    private static String idPartita=null; //id della partita corrente
+    private static String simboloAvversario=null;
+    private static String idPartita=null;
     private static Thread notificaThreadHomePage;
     private static NotificaListener notificaListenerHomePage;
     private Alert partitaTerminataAlert;
@@ -60,7 +59,7 @@ public class MatchController {
             button_20.setDisable(false);
             button_21.setDisable(false);
             button_22.setDisable(false);
-            isXTurn = true; // Il giocatore X inizia per primo
+            isXTurn = true;
         }
 
         if(nomeAvversario != null) {
@@ -84,8 +83,8 @@ public class MatchController {
 
     private void handleMove(Button button) {
         System.out.println("Button clicked: " + button.getId());
-        char row = button.getId().charAt(7); // Assuming the button ID is in the format "button_XX"
-        char col=button.getId().charAt(8); // Extract the column part
+        char row = button.getId().charAt(7);
+        char col=button.getId().charAt(8);
 
         connessione.sendRequest(connessione.clientSocket, "Partita:putMove:" + row + "," + col + "," + simboloGiocatore + "," + idPartita);
         button.setText(simboloGiocatore);
@@ -154,9 +153,7 @@ public class MatchController {
                     break;
             }
             if (button != null) {
-                // Disabilita il pulsante
                 button.setDisable(true);
-                // Cambia il testo del pulsante in base al simbolo del giocatore
                 button.setText(simboloAvversario);
             }
 
@@ -197,33 +194,27 @@ public class MatchController {
     public void addNuovaRichiesta(Richiesta richiesta) {
     
         Platform.runLater(() -> {
-            // Crea una riga per la richiesta
-            HBox riga = new HBox(10); // Spaziatura di 10 tra gli elementi
+            HBox riga = new HBox(10);
             Text testoRichiesta = new Text(richiesta.messaggio + " (ID: " + richiesta.idRichiesta + ")");
             Button accettaButton = new Button("Accetta");
             Button rifiutaButton = new Button("Rifiuta");
 
-            // Azioni dei pulsanti
             accettaButton.setOnAction(e -> handleAccept(richiesta, riga));
             rifiutaButton.setOnAction(e -> handleReject(richiesta, riga));
-
-            // Aggiungi gli elementi alla riga
             riga.getChildren().addAll(testoRichiesta, accettaButton, rifiutaButton);
-
-            // Aggiungi la riga alla ListView
             notifiche_list.getItems().add(riga);
         });
     }
 
     private void handleAccept(Richiesta richiesta, HBox riga) {
         connessione.sendRequest(connessione.clientSocket, "Richiesta:putAccettaRichiesta:" + richiesta.idRichiesta);
-        rigaDaEliminare=riga; // Logica per accettare la richiesta (es: invio al server)
+        rigaDaEliminare=riga;
         deleteNotifica();
     }
 
     private void handleReject(Richiesta richiesta, HBox riga) {
         connessione.sendRequest(connessione.clientSocket, "Richiesta:deleteRifiutaRichiesta:" + richiesta.idRichiesta);
-        rigaDaEliminare=riga; //Platform.runLater(() -> notifiche_list.getItems().remove(riga));
+        rigaDaEliminare=riga;
     }
 
     public void deleteNotifica() {
@@ -241,7 +232,7 @@ public class MatchController {
     public void setPartitaTerminata(String message) {
         Platform.runLater(() -> { Platform.runLater(() -> avvisi_label.setText(message)); });
         Platform.runLater(() -> {
-            partitaTerminataAlert = new Alert(AlertType.CONFIRMATION); // <--- salva la reference
+            partitaTerminataAlert = new Alert(AlertType.CONFIRMATION);
             Alert alert = partitaTerminataAlert;
                         
             alert.setTitle("Partita terminata");
@@ -303,7 +294,7 @@ public class MatchController {
             button_20.setDisable(false);
             button_21.setDisable(false);
             button_22.setDisable(false);
-            isXTurn = true; // Il giocatore X inizia per primo
+            isXTurn = true;
         }
     }
 
@@ -343,7 +334,7 @@ public class MatchController {
                 button_20.setDisable(false);
                 button_21.setDisable(false);
                 button_22.setDisable(false);
-                isXTurn = true; // Il giocatore X inizia per primo
+                isXTurn = true;
             }else{
                 button_00.setDisable(true);
                 button_01.setDisable(true);

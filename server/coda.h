@@ -7,7 +7,7 @@
 #include "config.h"
 
 typedef struct {
-    int idRichiesta; // ID della richiesta
+    int idRichiesta;
     int idPartita;
     char nomeCreatore[50];
     char nomeGiocatore[50];

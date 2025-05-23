@@ -15,8 +15,8 @@ public class LoginController {
 
     @FXML
     private void handleClickInviaButton() throws IOException {
-        String nomeGiocatore = name_textField.getText(); // Ottieni il nome del giocatore
-        HomePageController.setNomeGiocatore(nomeGiocatore);  // Passa il nome al controller della home page
+        String nomeGiocatore = name_textField.getText();
+        HomePageController.setNomeGiocatore(nomeGiocatore);
         App.setRoot("homePage");
     }
 }
