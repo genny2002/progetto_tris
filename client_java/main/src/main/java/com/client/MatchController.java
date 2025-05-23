@@ -46,7 +46,7 @@ public class MatchController {
     private static String idPartita=null; //id della partita corrente
     private static Thread notificaThreadHomePage;
     private static NotificaListener notificaListenerHomePage;
-
+    private Alert partitaTerminataAlert;
 
     @FXML
     public void initialize() {
@@ -215,7 +215,7 @@ public class MatchController {
         });
     }
 
-    private /*static*/ void handleAccept(Richiesta richiesta, HBox riga) {
+    private void handleAccept(Richiesta richiesta, HBox riga) {
         connessione.sendRequest(connessione.clientSocket, "Richiesta:putAccettaRichiesta:" + richiesta.idRichiesta);
         rigaDaEliminare=riga; // Logica per accettare la richiesta (es: invio al server)
         deleteNotifica();
@@ -241,7 +241,8 @@ public class MatchController {
     public void setPartitaTerminata(String message) {
         Platform.runLater(() -> { Platform.runLater(() -> avvisi_label.setText(message)); });
         Platform.runLater(() -> {
-            Alert alert = new Alert(AlertType.CONFIRMATION);
+            partitaTerminataAlert = new Alert(AlertType.CONFIRMATION); // <--- salva la reference
+            Alert alert = partitaTerminataAlert;
                         
             alert.setTitle("Partita terminata");
             alert.setHeaderText("La partita è terminata!");
@@ -259,6 +260,16 @@ public class MatchController {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+            partitaTerminataAlert = null;
+        });
+    }
+
+    public void closePartitaTerminataAlert() {
+        Platform.runLater(() -> {
+            if (partitaTerminataAlert != null) {
+                partitaTerminataAlert.close();
+                partitaTerminataAlert = null;
             }
         });
     }

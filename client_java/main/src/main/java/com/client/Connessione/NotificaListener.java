@@ -84,6 +84,10 @@ public class NotificaListener implements Runnable {
                     final String finalMessage = message;
                     
                     Platform.runLater(() -> {
+                        if (matchController != null) {
+                            matchController.closePartitaTerminataAlert(); // <--- chiudi il popup
+                        }
+
                         Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setTitle("Broadcast");
                         alert.setHeaderText("Messaggio di sistema");
