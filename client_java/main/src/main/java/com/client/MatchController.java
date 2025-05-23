@@ -199,12 +199,12 @@ public class MatchController {
         Platform.runLater(() -> {
             // Crea una riga per la richiesta
             HBox riga = new HBox(10); // Spaziatura di 10 tra gli elementi
-            Text testoRichiesta = new Text("Richiesta: " + richiesta.messaggio + " (ID: " + richiesta.idRichiesta + ")");
+            Text testoRichiesta = new Text(richiesta.messaggio + " (ID: " + richiesta.idRichiesta + ")");
             Button accettaButton = new Button("Accetta");
             Button rifiutaButton = new Button("Rifiuta");
 
             // Azioni dei pulsanti
-            accettaButton.setOnAction(e -> handleAccept(richiesta));
+            accettaButton.setOnAction(e -> handleAccept(richiesta, riga));
             rifiutaButton.setOnAction(e -> handleReject(richiesta, riga));
 
             // Aggiungi gli elementi alla riga
@@ -215,9 +215,10 @@ public class MatchController {
         });
     }
 
-    private static void handleAccept(Richiesta richiesta) {
+    private /*static*/ void handleAccept(Richiesta richiesta, HBox riga) {
         connessione.sendRequest(connessione.clientSocket, "Richiesta:putAccettaRichiesta:" + richiesta.idRichiesta);
-        // Logica per accettare la richiesta (es: invio al server)
+        rigaDaEliminare=riga; // Logica per accettare la richiesta (es: invio al server)
+        deleteNotifica();
     }
 
     private void handleReject(Richiesta richiesta, HBox riga) {
