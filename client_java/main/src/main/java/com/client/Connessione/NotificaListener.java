@@ -129,6 +129,10 @@ public class NotificaListener implements Runnable {
                         alert.setContentText(finalMessage.substring("Broadcast:".length()).trim());
                         alert.showAndWait();
                     });
+
+                    if(message.contains("ha creato una nuova partita")){
+                        homePageController.initPartiteInAttesa();
+                    }
                 }
                 else if(message.startsWith("Partita terminata")){
                     matchController.setPartitaTerminata(message);

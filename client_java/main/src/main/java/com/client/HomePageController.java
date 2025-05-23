@@ -57,7 +57,7 @@ public class HomePageController {
         notificaThreadHomePage.start();
     }
 
-    private void initPartiteInAttesa() {
+    public void initPartiteInAttesa() {
         // Simula il caricamento delle partite in attesa
         this.partite = getPartiteInAttesa();
 
