@@ -52,8 +52,6 @@ public class NotificaListener implements Runnable {
 
             while (!Thread.currentThread().isInterrupted() && (message = reader.readLine()) != null) {
                 if(message.startsWith("Richiesta Rematch")){
-                    System.out.println("Il tuo avversario ha richiesto un rematch");
-
                     final String finalMessage = message;
                     
                     Platform.runLater(() -> {
@@ -65,8 +63,6 @@ public class NotificaListener implements Runnable {
                     });
                 }
                 else if(message.startsWith("rematch accettato")){
-                    System.out.println("iniziate un'altra partita");
-
                     String[] parts = message.split(":");
                     String simboloGiocatoreAttuale = parts[1].trim();
                     matchController.setSimboloFromNotificaListener(simboloGiocatoreAttuale);
@@ -75,8 +71,6 @@ public class NotificaListener implements Runnable {
             
                 }
                 else if(message.startsWith("rematch rifiutato")){
-                    System.out.println("Il tuo avversario ha abbandonato la partita");
-
                     final String finalMessage = message;
                     
                     Platform.runLater(() -> {
@@ -94,8 +88,6 @@ public class NotificaListener implements Runnable {
                     matchController.goToHomePage();
                 }
                 else if(message.startsWith("Richietsa inviata")){
-                    System.out.println("Richiesta inviata");
-
                     final String finalMessage = message;
                     
                     Platform.runLater(() -> {
@@ -115,7 +107,6 @@ public class NotificaListener implements Runnable {
                     }
                 }
                 else if(message.startsWith("Broadcast")){
-                    System.out.println(message);
                     final String finalMessage = message;
                     
                     Platform.runLater(() -> {
@@ -143,6 +134,7 @@ public class NotificaListener implements Runnable {
                 }
                 else if (message.startsWith("Richiesta di partecipazione")) {
                     int separatorIndex = message.lastIndexOf(":");
+                    
                     if (separatorIndex > 0) {
                         String testo = message.substring(0, separatorIndex);
                         String id = message.substring(separatorIndex + 1);
