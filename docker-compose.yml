@@ -1,0 +1,29 @@
+#version: "3.8"
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: server
+    ports:
+      - "5050:5050" # Mappa la porta del server sulla macchina host
+    networks:
+      - app_network
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    container_name: client
+    depends_on:
+      - server
+    networks:
+      - app_network
+    environment:
+      - DISPLAY=$DISPLAY
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+
+networks:
+  app_network:
+    driver: bridge

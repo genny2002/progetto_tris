@@ -76,6 +76,10 @@ int main() {
         sockets[numero_sockets] = new_socket;
         numero_sockets++;
 
+        /*char *msg = malloc(256);
+        sprintf(msg, "Benvenuto:%d\n", new_socket);
+        send(new_socket, msg, strlen(msg), 0);*/
+
         // Creo un thread per gestire la connessione
         if (pthread_create(&thread_client, NULL, process, (void *)client_socket_ptr) < 0) perror("Could not create thread"), exit(EXIT_FAILURE);
     }

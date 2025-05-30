@@ -33,13 +33,13 @@ public class HomePageController {
     private NotificaListener notificaListenerHomePage;
     public String idNuovaPartita;
 
-    @FXML
+    /*@FXML
     private void handleClickLogoutButton() throws IOException {
-        connessione.sendRequest(connessione.clientSocket, "logout:" + nomeGiocatore + "," + nomeCreatore);
+        connessione.sendRequest(connessione.clientSocket, "logout:");
         String response = connessione.readResponse(connessione.clientSocket);
         System.out.println("Risposta dal server: " + response);
         //App.setRoot("loginPage");
-    }
+    }*/
 
     public static void setNomeGiocatore(String nome) {
         nomeGiocatore = nome;

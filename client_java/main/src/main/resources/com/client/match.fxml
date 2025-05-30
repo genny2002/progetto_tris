@@ -34,6 +34,7 @@
          </children>
       </GridPane>
       <ListView id="notifiche_list" fx:id="notifiche_list" layoutY="358.0" prefHeight="123.0" prefWidth="640.0" />
-      <Label id="avvisi_label" fx:id="avvisi_label" layoutX="4.0" layoutY="35.0" prefHeight="18.0" prefWidth="592.0" text="In attesa di una richiesta..." textAlignment="CENTER" />
+      <Label id="avvisi_label" fx:id="avvisi_label" layoutX="4.0" layoutY="35.0" prefHeight="18.0" prefWidth="556.0" text="In attesa di una richiesta..." textAlignment="CENTER" />
+      <Button id="logout_button" fx:id="logout_button" layoutX="566.0" layoutY="31.0" mnemonicParsing="false" text="Logout" />
    </children>
 </AnchorPane>
