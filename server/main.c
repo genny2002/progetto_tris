@@ -16,6 +16,9 @@ partita_t partite[MAX_PARTITE];  // IL SERVER SUPPORTA AL MASSIMO 10 PARTITE
 coda_t richieste;
 int sockets[MAX_SOCKETS]; // Array per memorizzare i socket dei client
 int numero_sockets = 0; // Contatore per il numero di socket aperti
+pthread_mutex_t mutex_partite;
+pthread_mutex_t mutex_richieste;
+pthread_mutex_t mutex_sockets;
 
 void* process(void * ptr);
 
@@ -23,6 +26,10 @@ int main() {
     printf("Server started...\n");
     inizializza_partite(partite);
     inizializzaCoda(&richieste);
+
+    pthread_mutex_init(&mutex_partite, NULL);
+    pthread_mutex_init(&mutex_richieste, NULL);
+    pthread_mutex_init(&mutex_sockets, NULL);
 
     int sockfd, new_socket; //'sockfd' è la socket del server in cui riceve richieste di connessione, 'new_socket' è la socket del client con la quale il server comunica con il client
     int opt = 1;
@@ -73,8 +80,10 @@ int main() {
         int *client_socket_ptr = malloc(sizeof(int));
         *client_socket_ptr = new_socket;
 
+        pthread_mutex_lock(&mutex_sockets);
         sockets[numero_sockets] = new_socket;
         numero_sockets++;
+        pthread_mutex_unlock(&mutex_sockets);
 
         char *msg = malloc(256);
         sprintf(msg, "%d\n", new_socket);
@@ -102,13 +111,22 @@ void* process(void * ptr){
         const char *msg = "";
         
         if(strstr(buffer, "Partita")!=NULL){
+            pthread_mutex_lock(&mutex_partite);
+            pthread_mutex_lock(&mutex_richieste);
             msg=partitaParser(buffer, partite, socket, sockets, numero_sockets, &richieste);
+            pthread_mutex_unlock(&mutex_richieste);
+            pthread_mutex_unlock(&mutex_partite);
         }else if(strstr(buffer, "Richiesta")!=NULL){
+            pthread_mutex_lock(&mutex_partite);
+            pthread_mutex_lock(&mutex_richieste);
             msg=richiestaParser(buffer, partite, socket, &richieste);
+            pthread_mutex_unlock(&mutex_richieste);
+            pthread_mutex_unlock(&mutex_partite);
         }else{
             if (strncmp(buffer, "logout:", 7) == 0) {
                 int logout_socket = atoi(buffer + 7);
                 // Cerca la socket nell'array e rimuovila
+                pthread_mutex_lock(&mutex_sockets);
                 for (int i = 0; i < numero_sockets; i++) {
                     if (sockets[i] == logout_socket) {
                         // Sposta le socket successive verso sinistra
@@ -121,8 +139,14 @@ void* process(void * ptr){
                     }
                 }
 
+                pthread_mutex_unlock(&mutex_sockets);
+
+                pthread_mutex_lock(&mutex_richieste);
                 freeRichieste(&richieste, logout_socket);
+                pthread_mutex_unlock(&mutex_richieste);
+                pthread_mutex_lock(&mutex_partite);
                 freePartite(partite, logout_socket);
+                pthread_mutex_unlock(&mutex_partite);
                 close(logout_socket);
 
                 break; // Esci dal ciclo e termina il thread
