@@ -8,6 +8,7 @@
         "pthread.h": "c",
         "stdio.h": "c",
         "config.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "coda.h": "c"
     }
 }

@@ -40,5 +40,6 @@ bool controllaPareggio(char campo[3][3]);
 void send_in_broadcast(int sockets[], int numero_sockets, char *message, int socket1, int socket2);
 char *putRematch(char *attributi, partita_t *partite, coda_t *richieste);
 void eliminaRichiestaByPartitaId(int idPartita, coda_t* richieste);
+void freePartite(partita_t *partite, int socket);
 
 #endif 

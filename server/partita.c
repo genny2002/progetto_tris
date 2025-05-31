@@ -290,3 +290,25 @@ void eliminaRichiestaByPartitaId(int idPartita, coda_t* coda) {
 
     *coda = tempQueue;
 }
+
+void freePartite(partita_t *partite, int socket) {
+    for (int i = 0; i < MAX_PARTITE; i++) {
+        if (partite[i].socketCreatore == socket || partite[i].socketGiocatore == socket) {
+            char *response = malloc(1024);
+            
+            response = "il tuo avversario ha abbandonato la partita\n";
+
+            if (partite[i].socketCreatore == socket) {
+                send(partite[i].socketGiocatore, response, strlen(response), 0);
+            } else {
+                send(partite[i].socketCreatore, response, strlen(response), 0);
+            }
+
+            strcpy(partite[i].stato, "nuova_creazione");
+            strcpy(partite[i].nomeCreatore, "");
+            strcpy(partite[i].nomeGiocatore, "");
+            partite[i].socketCreatore = -1;
+            partite[i].socketGiocatore = -1;
+        }
+    }
+}

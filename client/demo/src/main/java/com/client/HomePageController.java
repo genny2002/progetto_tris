@@ -32,14 +32,15 @@ public class HomePageController {
     private Thread notificaThreadHomePage;
     private NotificaListener notificaListenerHomePage;
     public String idNuovaPartita;
+    public String serverSocket;
 
-    /*@FXML
+    @FXML
     private void handleClickLogoutButton() throws IOException {
-        connessione.sendRequest(connessione.clientSocket, "logout:");
-        String response = connessione.readResponse(connessione.clientSocket);
-        System.out.println("Risposta dal server: " + response);
-        //App.setRoot("loginPage");
-    }*/
+        System.out.println("Effettuando logout...");
+        connessione.sendRequest(connessione.clientSocket, "logout:" + serverSocket);
+        System.out.println("Logout effettuato con successo.");
+        App.setRoot("login");
+    }
 
     public static void setNomeGiocatore(String nome) {
         nomeGiocatore = nome;
@@ -48,6 +49,7 @@ public class HomePageController {
     @FXML
     private void initialize() {
         connessione = new Connessione();
+        serverSocket = connessione.readResponse(connessione.clientSocket);
 
         if (nomeGiocatore != null && !nomeGiocatore.isEmpty()) {
             benvenuto_label.setText("Benvenuto, " + nomeGiocatore + "!");
@@ -121,7 +123,7 @@ public class HomePageController {
         MatchController.setSimbolo(simbolo);
         MatchController.setIdPartita(idPartita);
         MatchController.setThread(notificaThreadHomePage, notificaListenerHomePage);
-
+        MatchController.setServerSocket(serverSocket);
         App.setRoot("match");
     }
 
@@ -132,6 +134,7 @@ public class HomePageController {
         MatchController.setClientSocket(connessione);
         MatchController.setIdPartita(idNuovaPartita);
         MatchController.setThread(notificaThreadHomePage, notificaListenerHomePage);
+        MatchController.setServerSocket(serverSocket);
         App.setRoot("match");
     }    
 }

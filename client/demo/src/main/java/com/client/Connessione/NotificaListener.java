@@ -51,7 +51,25 @@ public class NotificaListener implements Runnable {
             String message;
 
             while (!Thread.currentThread().isInterrupted() && (message = reader.readLine()) != null) {
-                if(message.startsWith("Richiesta Rematch")){
+                if(message.contains("abbandonato")){
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle("Partita terminata");
+                        alert.setHeaderText("Partita terminata");
+                        alert.setContentText("Il tuo avversario ha abbandonato la partita.");
+                        alert.setOnCloseRequest(event -> {
+                            if (matchController != null) {
+                                try {
+                                    matchController.goToHomePage();
+                                } catch (IOException e) {
+                                    System.err.println("Errore durante il ritorno alla home page: " + e.getMessage());
+                                }
+                            }
+                        });
+                        alert.showAndWait();
+                    });
+                }
+                else if(message.startsWith("Richiesta Rematch")){
                     final String finalMessage = message;
                     
                     Platform.runLater(() -> {

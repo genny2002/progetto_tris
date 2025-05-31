@@ -76,9 +76,9 @@ int main() {
         sockets[numero_sockets] = new_socket;
         numero_sockets++;
 
-        /*char *msg = malloc(256);
-        sprintf(msg, "Benvenuto:%d\n", new_socket);
-        send(new_socket, msg, strlen(msg), 0);*/
+        char *msg = malloc(256);
+        sprintf(msg, "%d\n", new_socket);
+        send(new_socket, msg, strlen(msg), 0);
 
         // Creo un thread per gestire la connessione
         if (pthread_create(&thread_client, NULL, process, (void *)client_socket_ptr) < 0) perror("Could not create thread"), exit(EXIT_FAILURE);
@@ -106,9 +106,32 @@ void* process(void * ptr){
         }else if(strstr(buffer, "Richiesta")!=NULL){
             msg=richiestaParser(buffer, partite, socket, &richieste);
         }else{
-            break;
+            if (strncmp(buffer, "logout:", 7) == 0) {
+                int logout_socket = atoi(buffer + 7);
+                // Cerca la socket nell'array e rimuovila
+                for (int i = 0; i < numero_sockets; i++) {
+                    if (sockets[i] == logout_socket) {
+                        // Sposta le socket successive verso sinistra
+                        for (int j = i; j < numero_sockets - 1; j++) {
+                            sockets[j] = sockets[j + 1];
+                        }
+
+                        numero_sockets--;
+                        break;
+                    }
+                }
+
+                freeRichieste(&richieste, logout_socket);
+                freePartite(partite, logout_socket);
+                close(logout_socket);
+
+                break; // Esci dal ciclo e termina il thread
+            } else {
+                break;
+            }
         }
     }
+
     close(socket);
     
     return NULL;

@@ -19,5 +19,6 @@ void notificaProprietario(int socketProprietario, char* nomeGiocatore, int idRic
 char *deleteRifiutaRichiesta(char *attributi, coda_t *richieste);
 char *putAccettaRichiesta(char *attributi, coda_t *richieste, partita_t *partite);
 void deleteEliminaRichiesteByPartitaId(coda_t *richieste, int idPartita);
+void freeRichieste(coda_t *richieste, int socket);
 
 #endif 

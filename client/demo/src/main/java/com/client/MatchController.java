@@ -46,6 +46,7 @@ public class MatchController {
     private static Thread notificaThreadHomePage;
     private static NotificaListener notificaListenerHomePage;
     private Alert partitaTerminataAlert;
+    public static String serverSocket;
 
     @FXML
     public void initialize() {
@@ -79,6 +80,14 @@ public class MatchController {
         button_22.setOnAction(e -> handleMove(button_22));
 
         notificaListenerHomePage.setMatchController(this);
+    }
+
+    @FXML
+    private void handleClickLogoutButton() throws IOException {
+        System.out.println("Effettuando logout...");
+        connessione.sendRequest(connessione.clientSocket, "logout:" + serverSocket);
+        System.out.println("Logout effettuato con successo.");
+        App.setRoot("login");
     }
 
     private void handleMove(Button button) {
@@ -349,6 +358,8 @@ public class MatchController {
             }
         });
     }
+
+    static public void setServerSocket(String socket) {
+        serverSocket = socket;
+    }
 }
-
-

@@ -185,3 +185,25 @@ void deleteEliminaRichiesteByPartitaId(coda_t *richieste, int idPartita) {
     richieste->rear = newSize > 0 ? newSize - 1 : -1;
     richieste->size = newSize;
 }
+
+void freeRichieste(coda_t *richieste, int socket) {
+    int newSize = 0;
+    int front = richieste->front;
+    richiesta_t nuovaCoda[MAX_QUEUE_SIZE];
+
+    for (int i = 0; i < richieste->size; i++) {
+        int idx = (front + i) % MAX_QUEUE_SIZE;
+        // Mantieni solo le richieste che NON hanno il socket come creatore o giocatore
+        if (richieste->queue[idx].socketCreatore != socket && richieste->queue[idx].socketGiocatore != socket) {
+            nuovaCoda[newSize++] = richieste->queue[idx];
+        }
+    }
+
+    for (int i = 0; i < newSize; i++) {
+        richieste->queue[i] = nuovaCoda[i];
+    }
+
+    richieste->front = 0;
+    richieste->rear = newSize > 0 ? newSize - 1 : -1;
+    richieste->size = newSize;
+}

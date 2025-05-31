@@ -12,6 +12,6 @@
       <Label layoutX="251.0" layoutY="84.0" text="Partite in attesa" />
       <ListView id="partite_list" fx:id="partite_list" layoutY="102.0" prefHeight="287.0" prefWidth="640.0" />
       <Label id="benvenuto_label" fx:id="benvenuto_label" layoutX="48.0" layoutY="23.0" text="Benvenuto" />
-      <Button id="logout_button" fx:id="logout_button" layoutX="566.0" layoutY="37.0" mnemonicParsing="false" text="Logout" />
+      <Button id="logout_button" fx:id="logout_button" layoutX="566.0" layoutY="37.0" mnemonicParsing="false" onAction="#handleClickLogoutButton" text="Logout" />
    </children>
 </AnchorPane>
