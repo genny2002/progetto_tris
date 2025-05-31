@@ -86,7 +86,6 @@ public class NotificaListener implements Runnable {
                     matchController.setSimboloFromNotificaListener(simboloGiocatoreAttuale);
                     matchController.setAvvisiLabel();
                     matchController.initButton();
-            
                 }
                 else if(message.startsWith("rematch rifiutato")){
                     final String finalMessage = message;

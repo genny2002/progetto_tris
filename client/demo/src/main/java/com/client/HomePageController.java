@@ -27,12 +27,12 @@ public class HomePageController {
 
     private static String nomeGiocatore;
     List<Partita> partite;
-    Connessione connessione;
+    public static Connessione connessione;
     public String nomeAvversario;
     private Thread notificaThreadHomePage;
     private NotificaListener notificaListenerHomePage;
     public String idNuovaPartita;
-    public String serverSocket;
+    public static String serverSocket;
 
     @FXML
     private void handleClickLogoutButton() throws IOException {
