@@ -95,14 +95,20 @@ public class NotificaListener implements Runnable {
                             matchController.closePartitaTerminataAlert();
                         }
 
-                        Alert alert = new Alert(AlertType.INFORMATION);
-                        alert.setTitle("Broadcast");
-                        alert.setHeaderText("Messaggio di sistema");
-                        alert.setContentText(finalMessage);
-                        alert.showAndWait();
-                    });
+                        Alert alert2 = new Alert(AlertType.INFORMATION);
+                        alert2.setTitle("Broadcast");
+                        alert2.setHeaderText("Messaggio di sistema");
+                        alert2.setContentText(finalMessage);
+                        alert2.showAndWait();
 
-                    matchController.goToHomePage();
+                        if(matchController != null){
+                            try {
+                                matchController.goToHomePage();
+                            } catch (IOException e) {
+                                System.err.println("Errore durante il ritorno alla home page: " + e.getMessage());
+                            }
+                        }
+                    });
                 }
                 else if(message.startsWith("Richietsa inviata")){
                     final String finalMessage = message;

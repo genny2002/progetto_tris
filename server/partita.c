@@ -212,12 +212,16 @@ char *putRematch(char *attributi, partita_t *partite, coda_t *richieste) {
         sprintf(response, "rematch rifiutato\n");
         send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
         printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketGiocatore);
-        eliminaRichiestaByPartitaId(idPartita, richieste);
+        partite[idPartita].socketCreatore = -1;
+        partite[idPartita].socketGiocatore = -1;
+        //eliminaRichiestaByPartitaId(idPartita, richieste);
     }else if(partite[idPartita].rematchGiocatore==-1){
         sprintf(response, "rematch rifiutato\n");
         send(partite[idPartita].socketCreatore, response, strlen(response), 0);
         printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketCreatore);
-        eliminaRichiestaByPartitaId(idPartita, richieste);
+        partite[idPartita].socketCreatore = -1;
+        partite[idPartita].socketGiocatore = -1;
+        //eliminaRichiestaByPartitaId(idPartita, richieste);
     }else if(partite[idPartita].rematchCreatore==1 && partite[idPartita].rematchGiocatore==1){
         srand(time(NULL));
         strcpy(partite[idPartita].stato, "in_corso");
@@ -258,7 +262,7 @@ char *putRematch(char *attributi, partita_t *partite, coda_t *richieste) {
     return response;
 }
 
-void eliminaRichiestaByPartitaId(int idPartita, coda_t* coda) {
+/*void eliminaRichiestaByPartitaId(int idPartita, coda_t* coda) {
     if (isCodaVuota(coda)) {
         printf("La coda è vuota. Nessuna richiesta da eliminare.\n");
         return;
@@ -289,7 +293,7 @@ void eliminaRichiestaByPartitaId(int idPartita, coda_t* coda) {
     }
 
     *coda = tempQueue;
-}
+}*/
 
 void freePartite(partita_t *partite, int socket) {
     for (int i = 0; i < MAX_PARTITE; i++) {

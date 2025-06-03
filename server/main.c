@@ -122,37 +122,46 @@ void* process(void * ptr){
             msg=richiestaParser(buffer, partite, socket, &richieste);
             pthread_mutex_unlock(&mutex_richieste);
             pthread_mutex_unlock(&mutex_partite);
-        }else{
-            if (strncmp(buffer, "logout:", 7) == 0) {
-                int logout_socket = atoi(buffer + 7);
-                // Cerca la socket nell'array e rimuovila
-                pthread_mutex_lock(&mutex_sockets);
-                for (int i = 0; i < numero_sockets; i++) {
-                    if (sockets[i] == logout_socket) {
-                        // Sposta le socket successive verso sinistra
-                        for (int j = i; j < numero_sockets - 1; j++) {
-                            sockets[j] = sockets[j + 1];
-                        }
-
-                        numero_sockets--;
-                        break;
-                    }
-                }
-
-                pthread_mutex_unlock(&mutex_sockets);
-
-                pthread_mutex_lock(&mutex_richieste);
-                freeRichieste(&richieste, logout_socket);
-                pthread_mutex_unlock(&mutex_richieste);
-                pthread_mutex_lock(&mutex_partite);
-                freePartite(partite, logout_socket);
-                pthread_mutex_unlock(&mutex_partite);
-                close(logout_socket);
-
-                break; // Esci dal ciclo e termina il thread
-            } else {
-                break;
+        }else if (strncmp(buffer, "logout:", 7) == 0) {
+            printf("socket all'inizio del logout:\n");
+            for(int i = 0; i < numero_sockets; i++) {
+                printf("socket[%d]: %d\n", i, sockets[i]);
             }
+
+            int logout_socket = atoi(buffer + 7);
+            // Cerca la socket nell'array e rimuovila
+            pthread_mutex_lock(&mutex_sockets);
+            for (int i = 0; i < numero_sockets; i++) {
+                if (sockets[i] == logout_socket) {
+                    // Sposta le socket successive verso sinistra
+                    for (int j = i; j < numero_sockets - 1; j++) {
+                        sockets[j] = sockets[j + 1];
+                    }
+
+                    numero_sockets--;
+                    break;
+                }
+            }
+
+            pthread_mutex_unlock(&mutex_sockets);
+
+            pthread_mutex_lock(&mutex_richieste);
+            freeRichieste(&richieste, logout_socket);
+            pthread_mutex_unlock(&mutex_richieste);
+            pthread_mutex_lock(&mutex_partite);
+            freePartite(partite, logout_socket);
+            pthread_mutex_unlock(&mutex_partite);
+            close(logout_socket);
+
+            printf("la socket %d e' stata chiusa\n", logout_socket);
+            printf("socket all'inizio del logout:\n");
+            for(int i = 0; i < numero_sockets; i++) {
+                printf("socket[%d]: %d\n", i, sockets[i]);
+            }
+
+            break; // Esci dal ciclo e termina il thread
+        } else {
+            break;
         }
     }
 

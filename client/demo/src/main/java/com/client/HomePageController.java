@@ -36,9 +36,7 @@ public class HomePageController {
 
     @FXML
     private void handleClickLogoutButton() throws IOException {
-        System.out.println("Effettuando logout...");
         connessione.sendRequest(connessione.clientSocket, "logout:" + serverSocket);
-        System.out.println("Logout effettuato con successo.");
         App.setRoot("login");
     }
 
@@ -50,7 +48,7 @@ public class HomePageController {
     private void initialize() {
         connessione = new Connessione();
         serverSocket = connessione.readResponse(connessione.clientSocket);
-
+        
         if (nomeGiocatore != null && !nomeGiocatore.isEmpty()) {
             benvenuto_label.setText("Benvenuto, " + nomeGiocatore + "!");
         } else {
@@ -62,6 +60,10 @@ public class HomePageController {
         notificaListenerHomePage = new NotificaListener(connessione.clientSocket, this, null);
         notificaThreadHomePage = new Thread(notificaListenerHomePage);
         notificaThreadHomePage.start();
+    }
+
+    public static void setServerSocket(String serverSocket) {
+        HomePageController.serverSocket = serverSocket;
     }
 
     public void initPartiteInAttesa() {

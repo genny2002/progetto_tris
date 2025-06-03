@@ -256,6 +256,8 @@ public class MatchController {
                 connessione.sendRequest(connessione.clientSocket, "Partita:putRematch:" + idPartita + ",-1," + simboloGiocatore);
                 
                 try {
+                    HomePageController.setServerSocket(serverSocket);
+                    System.out.println("socket di homePage in matchController: " + HomePageController.serverSocket);
                     App.setRoot("homePage");
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -318,6 +320,8 @@ public class MatchController {
     }
 
     public void goToHomePage() throws IOException{
+        HomePageController.setServerSocket(serverSocket);
+        System.out.println("socket di homePage in matchController: " + HomePageController.serverSocket);
         App.setRoot("homePage");
     }
 
