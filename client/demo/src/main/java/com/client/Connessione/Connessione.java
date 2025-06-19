@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Connessione {
-    private static final int MAX_RESPONSE_SIZE = 1024;
+    private static final int MAX_RESPONSE_SIZE = 1024; 
     public Socket clientSocket;
 
     public Connessione() {
