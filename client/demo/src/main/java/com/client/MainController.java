@@ -265,10 +265,8 @@ public class MainController {
         Platform.runLater(() -> notifiche_list.getItems().remove(this.rigaDaEliminare));
     }
 
-    public void setRichiestaAccettata(Text statoRichiesta, String simbolo, String idPartita) throws IOException  {
+    public void setRichiestaAccettata(Text statoRichiesta, String simbolo) throws IOException  {
         Platform.runLater(() -> {
-            System.out.println("sono in setRichiestaAccettata");
-        
             if(statoRichiesta != null){
                 statoRichiesta.setText("richiesta accettata");
             }
@@ -342,7 +340,7 @@ public class MainController {
             Optional<ButtonType> result = alert.showAndWait();
                         
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                //connessione.sendRequest(connessione.clientSocket, "Partita:putRematch:" + idPartita + ",1," + simboloGiocatore);
+                connessione.sendRequest(connessione.clientSocket, "Partita:putRematch:" + idPartita + ",1," + simboloGiocatore);
                 System.out.println("Hai accettato il rematch");
             }else{
                 /*connessione.sendRequest(connessione.clientSocket, "Partita:putRematch:" + idPartita + ",-1," + simboloGiocatore);
@@ -357,6 +355,31 @@ public class MainController {
                 System.out.println("Hai rifiutato il rematch");
             }
             partitaTerminataAlert = null;
+        });
+    }
+
+    public void setRematch(){
+        Platform.runLater(() -> {
+            button_00.setText("");
+            button_01.setText("");
+            button_02.setText("");
+            button_10.setText("");
+            button_11.setText("");
+            button_12.setText("");
+            button_20.setText("");
+            button_21.setText("");
+            button_22.setText("");
+
+            button_00.setDisable(true);
+            button_01.setDisable(true);
+            button_02.setDisable(true);
+            button_10.setDisable(true);
+            button_11.setDisable(true);
+            button_12.setDisable(true);
+            button_20.setDisable(true);
+            button_21.setDisable(true);
+            button_22.setDisable(true);
+            // Logica per gestire il rematch
         });
     }
 

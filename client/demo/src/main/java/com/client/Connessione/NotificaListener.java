@@ -81,13 +81,29 @@ public class NotificaListener implements Runnable {
                         alert.showAndWait();
                     });
                 }
-                /*else if(message.startsWith("rematch accettato")){
+                else if(message.startsWith("rematch accettato")){
                     String[] parts = message.split(":");
                     String simboloGiocatoreAttuale = parts[1].trim();
-                    mainController.setSimboloFromNotificaListener(simboloGiocatoreAttuale);
-                    mainController.setAvvisiLabel();
-                    mainController.initButton();
-                }*/
+                    if(mainController != null){
+                        mainController.setRematch();
+                        
+                        if(simboloGiocatoreAttuale.equals("X")){
+                            mainController.simboloAvversario="O";
+                            mainController.simboloGiocatore = "X";
+                        }else{
+                            mainController.simboloAvversario="X";
+                            mainController.simboloGiocatore = "O";
+                        }
+
+                        Platform.runLater(() -> {
+                            try {
+                                mainController.setRichiestaAccettata(statoRichiesta, simboloGiocatoreAttuale);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });   
+                    }
+                }
                 /*else if(message.startsWith("rematch rifiutato")){
                     final String finalMessage = message;
                     
@@ -194,7 +210,7 @@ public class NotificaListener implements Runnable {
 
                             Platform.runLater(() -> {
                                 try {
-                                    mainController.setRichiestaAccettata(statoRichiesta, simboloGiocatoreAttuale, idPartita);
+                                    mainController.setRichiestaAccettata(statoRichiesta, simboloGiocatoreAttuale);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
