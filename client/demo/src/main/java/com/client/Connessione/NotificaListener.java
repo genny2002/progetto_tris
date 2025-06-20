@@ -47,7 +47,7 @@ public class NotificaListener implements Runnable {
                         mainController.partite = new ArrayList<>();
                     }else{
                         mainController.partite = Partita.convertToObjects(partiteString);
-                        mainController.showPartiteInAttesa(mainController.partite);
+                        Platform.runLater(() -> mainController.showPartiteInAttesa(mainController.partite));
                     }
 
         
@@ -86,7 +86,7 @@ public class NotificaListener implements Runnable {
                     String simboloGiocatoreAttuale = parts[1].trim();
                     if(mainController != null){
                         mainController.setRematch();
-                        
+
                         if(simboloGiocatoreAttuale.equals("X")){
                             mainController.simboloAvversario="O";
                             mainController.simboloGiocatore = "X";
@@ -104,7 +104,7 @@ public class NotificaListener implements Runnable {
                         });   
                     }
                 }
-                /*else if(message.startsWith("rematch rifiutato")){
+                else if(message.startsWith("rematch rifiutato")){
                     final String finalMessage = message;
                     
                     Platform.runLater(() -> {
@@ -119,14 +119,11 @@ public class NotificaListener implements Runnable {
                         alert2.showAndWait();
 
                         if(mainController != null){
-                            try {
-                                mainController.goToHomePage();
-                            } catch (IOException e) {
-                                System.err.println("Errore durante il ritorno alla home page: " + e.getMessage());
-                            }
+                            mainController.setHomePageControllerVisible();
+                            mainController.setRematch();
                         }
                     });
-                }*/
+                }
                 /*else if(message.startsWith("Richietsa inviata")){
                     final String finalMessage = message;
                     

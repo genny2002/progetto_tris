@@ -199,7 +199,7 @@ public class MainController {
     }
 
     public void initPartiteInAttesa() {
-        //this.partite = getPartiteInAttesa();
+        partite_list.getItems().clear();
         connessione.sendRequest(connessione.clientSocket, "Partita:getPartiteInAttesa:");
     }
 
@@ -310,6 +310,26 @@ public class MainController {
         button_22.setVisible(true);
     }
 
+    public void setHomePageControllerVisible(){
+        //partite_list.getItems().clear();
+        initPartiteInAttesa();
+        creaNuovaPartita_button.setVisible(true);
+        partite_list.setVisible(true);
+        notifiche_list.setVisible(false);
+
+        button_00.setVisible(false);
+        button_01.setVisible(false);
+        button_02.setVisible(false);
+        button_10.setVisible(false);
+        button_11.setVisible(false);
+        button_12.setVisible(false);
+        button_20.setVisible(false);
+        button_21.setVisible(false);
+        button_22.setVisible(false);
+
+        avvisi_label.setText("Benvenuto, " + nomeGiocatore + "!");
+    }
+
     public static void setNomeGiocatore(String nome) {
         nomeGiocatore = nome;
     }
@@ -343,15 +363,7 @@ public class MainController {
                 connessione.sendRequest(connessione.clientSocket, "Partita:putRematch:" + idPartita + ",1," + simboloGiocatore);
                 System.out.println("Hai accettato il rematch");
             }else{
-                /*connessione.sendRequest(connessione.clientSocket, "Partita:putRematch:" + idPartita + ",-1," + simboloGiocatore);
-                
-                try {
-                    HomePageController.setServerSocket(serverSocket);
-                    System.out.println("socket di homePage in matchController: " + HomePageController.serverSocket);
-                    App.setRoot("homePage");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }*/
+                connessione.sendRequest(connessione.clientSocket, "Partita:putRematch:" + idPartita + ",-1," + simboloGiocatore);
                 System.out.println("Hai rifiutato il rematch");
             }
             partitaTerminataAlert = null;

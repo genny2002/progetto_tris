@@ -208,17 +208,11 @@ char *putRematch(char *attributi, partita_t *partite, coda_t *richieste) {
         partite[idPartita].rematchGiocatore = valoreRematch;
     }
 
-    if(partite[idPartita].rematchCreatore==-1){
+    if(partite[idPartita].rematchCreatore==-1 || partite[idPartita].rematchGiocatore==-1){
         sprintf(response, "rematch rifiutato\n");
         send(partite[idPartita].socketGiocatore, response, strlen(response), 0);
-        printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketGiocatore);
-        partite[idPartita].socketCreatore = -1;
-        partite[idPartita].socketGiocatore = -1;
-        //eliminaRichiestaByPartitaId(idPartita, richieste);
-    }else if(partite[idPartita].rematchGiocatore==-1){
-        sprintf(response, "rematch rifiutato\n");
         send(partite[idPartita].socketCreatore, response, strlen(response), 0);
-        printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketCreatore);
+        printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketGiocatore);
         partite[idPartita].socketCreatore = -1;
         partite[idPartita].socketGiocatore = -1;
         //eliminaRichiestaByPartitaId(idPartita, richieste);
