@@ -16,7 +16,7 @@ public class LoginController {
     @FXML
     private void handleClickInviaButton() throws IOException {
         String nomeGiocatore = name_textField.getText();
-        HomePageController.setNomeGiocatore(nomeGiocatore);
-        App.setRoot("homePage");
+        MainController.setNomeGiocatore(nomeGiocatore);
+        App.setRoot("main");
     }
 }

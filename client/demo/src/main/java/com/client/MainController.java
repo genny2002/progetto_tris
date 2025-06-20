@@ -1,16 +1,16 @@
 package com.client;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Optional;
-import java.util.Queue;
 
-import com.client.Connessione.NotificaListener;
-import com.client.Model.Richiesta;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import com.client.Connessione.Connessione;
+import com.client.Connessione.NotificaListener;
+import com.client.Model.Partita;
+import com.client.Model.Richiesta;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -18,10 +18,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
-public class MatchController {
+
+public class MainController {
+    @FXML private Label avvisi_label;
     @FXML private Button button_00;
     @FXML private Button button_01;
     @FXML private Button button_02;
@@ -32,42 +35,43 @@ public class MatchController {
     @FXML private Button button_21;
     @FXML private Button button_22;
     @FXML private ListView<HBox> notifiche_list;
-    @FXML private Label avvisi_label;
+    @FXML private ListView<HBox> partite_list;
+    @FXML private Button creaNuovaPartita_button;
+    @FXML private GridPane gridPane;
 
-    private boolean isXTurn=false;
+    private static String nomeGiocatore;
     public static Connessione connessione;
-    public static Queue<Richiesta> richiesteRicevute = new LinkedList<>();
-    private static ObservableList<String> richiesteList = FXCollections.observableArrayList();
-    private HBox rigaDaEliminare;
-    private static String nomeAvversario=null;
-    private static String simboloGiocatore=null;    //simbolo del giocatore attuale (che sta giocando)
-    private static String simboloAvversario=null;
-    private static String idPartita=null;
-    private static Thread notificaThreadHomePage;
-    private static NotificaListener notificaListenerHomePage;
-    private Alert partitaTerminataAlert;
     public static String serverSocket;
+    private Thread notificaThreadHomePage;
+    private NotificaListener notificaListenerHomePage;
+    public List<Partita> partite;
+    private HBox rigaDaEliminare;
+    public String nomeAvversario=null;
+    public String simboloGiocatore=null;    //simbolo del giocatore attuale (che sta giocando)
+    public String simboloAvversario=null;
+    public String idPartita=null;
+    public String idNuovaPartita;
+    private boolean isXTurn=false;
+    private Alert partitaTerminataAlert;
 
     @FXML
     public void initialize() {
-        if(simboloGiocatore != null && simboloGiocatore.equals("X")){
-            button_00.setDisable(false);
-            button_01.setDisable(false);
-            button_02.setDisable(false);
-            button_10.setDisable(false);
-            button_11.setDisable(false);
-            button_12.setDisable(false);
-            button_20.setDisable(false);
-            button_21.setDisable(false);
-            button_22.setDisable(false);
-            isXTurn = true;
-        }
+        connessione = new Connessione();
+        serverSocket = connessione.readResponse(connessione.clientSocket);
 
-        if(nomeAvversario != null) {
-            avvisi_label.setText("Stai giocando contro " + nomeAvversario + " con simbolo " + simboloGiocatore);
-        } else {
-            avvisi_label.setText("In attesa di una richiesta");
-        }
+        partite=new ArrayList<Partita>();
+
+        avvisi_label.setText("Benvenuto, " + nomeGiocatore + "!");
+        button_00.setVisible(false);
+        button_01.setVisible(false);
+        button_02.setVisible(false);
+        button_10.setVisible(false);
+        button_11.setVisible(false);
+        button_12.setVisible(false);
+        button_20.setVisible(false);
+        button_21.setVisible(false);
+        button_22.setVisible(false);
+        notifiche_list.setVisible(false);
 
         button_00.setOnAction(e -> handleMove(button_00));
         button_01.setOnAction(e -> handleMove(button_01));
@@ -79,15 +83,12 @@ public class MatchController {
         button_21.setOnAction(e -> handleMove(button_21));
         button_22.setOnAction(e -> handleMove(button_22));
 
-        notificaListenerHomePage.setMatchController(this);
-    }
+        notificaListenerHomePage = new NotificaListener(connessione.clientSocket, this);
+        notificaThreadHomePage = new Thread(notificaListenerHomePage);
+        notificaThreadHomePage.start();
 
-    @FXML
-    private void handleClickLogoutButton() throws IOException {
-        System.out.println("Effettuando logout...");
-        connessione.sendRequest(connessione.clientSocket, "logout:" + serverSocket);
-        System.out.println("Logout effettuato con successo.");
-        App.setRoot("login");
+        initPartiteInAttesa();
+        
     }
 
     private void handleMove(Button button) {
@@ -95,7 +96,6 @@ public class MatchController {
         char row = button.getId().charAt(7);
         char col=button.getId().charAt(8);
 
-        connessione.sendRequest(connessione.clientSocket, "Partita:putMove:" + row + "," + col + "," + simboloGiocatore + "," + idPartita);
         button.setText(simboloGiocatore);
         button_00.setDisable(true);
         button_01.setDisable(true);
@@ -106,6 +106,8 @@ public class MatchController {
         button_20.setDisable(true);
         button_21.setDisable(true);
         button_22.setDisable(true);
+
+        connessione.sendRequest(connessione.clientSocket, "Partita:putMove:" + row + "," + col + "," + simboloGiocatore + "," + idPartita);
     }
 
     public void setMossa(int row, int column) {
@@ -196,8 +198,41 @@ public class MatchController {
         });
     }
 
-    public static void setClientSocket(Connessione newConnessione) {
-        connessione = newConnessione;
+    public void initPartiteInAttesa() {
+        //this.partite = getPartiteInAttesa();
+        connessione.sendRequest(connessione.clientSocket, "Partita:getPartiteInAttesa:");
+    }
+
+    public void showPartiteInAttesa(List<Partita> partite) {
+        for (Partita partita : partite) {
+            HBox riga = new HBox(10);
+            Text idPartita = new Text("ID: " + partita.getId());
+            Text nomeCreatore = new Text("Creatore: " + partita.getNomeCreatore());
+            Button partecipaButton = new Button("Partecipa");
+            Text statoRichiesta = new Text("");
+
+            partecipaButton.setOnAction(e -> {
+                statoRichiesta.setText("richiesta in attesa");
+                partecipaAPartita(partita.getId(), statoRichiesta);       
+            });
+
+            riga.getChildren().addAll(idPartita, nomeCreatore, partecipaButton, statoRichiesta);
+            partite_list.getItems().add(riga);
+        }
+    }
+
+    private void partecipaAPartita(int idPartita, Text statoRichiesta) {
+        String nomeCreatore = null;
+
+        for (Partita p : partite) {
+            if (p.getId() == idPartita) {
+                nomeCreatore = p.getNomeCreatore();
+                break;
+            }
+        }
+
+        notificaListenerHomePage.setStatoRichiesta(statoRichiesta);
+        connessione.sendRequest(connessione.clientSocket, "Richiesta:putSendRequest:" + idPartita + "," + nomeGiocatore + "," + nomeCreatore);
     }
 
     public void addNuovaRichiesta(Richiesta richiesta) {
@@ -230,14 +265,70 @@ public class MatchController {
         Platform.runLater(() -> notifiche_list.getItems().remove(this.rigaDaEliminare));
     }
 
-    public static void setNomeAvversario(String avversario) {
-        nomeAvversario = avversario;
+    public void setRichiestaAccettata(Text statoRichiesta, String simbolo, String idPartita) throws IOException  {
+        Platform.runLater(() -> {
+            System.out.println("sono in setRichiestaAccettata");
+        
+            if(statoRichiesta != null){
+                statoRichiesta.setText("richiesta accettata");
+            }
+
+            setMatchControllerVisible();
+
+            if(simboloGiocatore != null && simboloGiocatore.equals("X")){
+                button_00.setDisable(false);
+                button_01.setDisable(false);
+                button_02.setDisable(false);
+                button_10.setDisable(false);
+                button_11.setDisable(false);
+                button_12.setDisable(false);
+                button_20.setDisable(false);
+                button_21.setDisable(false);
+                button_22.setDisable(false);
+                isXTurn = true;
+            }
+
+            avvisi_label.setText("Stai giocando contro " + nomeAvversario + " con simbolo " + simboloGiocatore);
+        });
     }
 
-    public void setAvvisiLabel() {
-        Platform.runLater(() -> avvisi_label.setText("Stai giocando contro " + nomeAvversario + " con simbolo " + simboloGiocatore));   
+    public void setRichiestaRifiutata(Text statoRichiesta) {
+        statoRichiesta.setText("richiesta rifiutata");
     }
-    
+
+    private void setMatchControllerVisible(){
+        creaNuovaPartita_button.setVisible(false);
+        partite_list.setVisible(false);
+        notifiche_list.setVisible(true);
+
+        button_00.setVisible(true);
+        button_01.setVisible(true);
+        button_02.setVisible(true);
+        button_10.setVisible(true);
+        button_11.setVisible(true);
+        button_12.setVisible(true);
+        button_20.setVisible(true);
+        button_21.setVisible(true);
+        button_22.setVisible(true);
+    }
+
+    public static void setNomeGiocatore(String nome) {
+        nomeGiocatore = nome;
+    }
+
+    @FXML
+    private void handleClickLogoutButton() throws IOException {
+        // Qui puoi aggiungere la logica per il logout, ad esempio tornare alla schermata di login
+        App.setRoot("login");
+    }
+
+    @FXML
+    private void handleClickCreaNuovaPartitaButton() throws IOException {
+        connessione.sendRequest(connessione.clientSocket, "Partita:putCreaPartita:" + nomeGiocatore);
+        setMatchControllerVisible();
+        avvisi_label.setText("In attesa di un avversario...");
+    }
+
     public void setPartitaTerminata(String message) {
         Platform.runLater(() -> { Platform.runLater(() -> avvisi_label.setText(message)); });
         Platform.runLater(() -> {
@@ -251,9 +342,10 @@ public class MatchController {
             Optional<ButtonType> result = alert.showAndWait();
                         
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                connessione.sendRequest(connessione.clientSocket, "Partita:putRematch:" + idPartita + ",1," + simboloGiocatore);
+                //connessione.sendRequest(connessione.clientSocket, "Partita:putRematch:" + idPartita + ",1," + simboloGiocatore);
+                System.out.println("Hai accettato il rematch");
             }else{
-                connessione.sendRequest(connessione.clientSocket, "Partita:putRematch:" + idPartita + ",-1," + simboloGiocatore);
+                /*connessione.sendRequest(connessione.clientSocket, "Partita:putRematch:" + idPartita + ",-1," + simboloGiocatore);
                 
                 try {
                     HomePageController.setServerSocket(serverSocket);
@@ -261,7 +353,8 @@ public class MatchController {
                     App.setRoot("homePage");
                 } catch (IOException e) {
                     e.printStackTrace();
-                }
+                }*/
+                System.out.println("Hai rifiutato il rematch");
             }
             partitaTerminataAlert = null;
         });
@@ -275,95 +368,5 @@ public class MatchController {
             }
         });
     }
-
-    public static void setSimbolo(String simbolo){
-        if(simbolo.equals("X")){
-            simboloAvversario="O";
-            simboloGiocatore = "X";
-        }else{
-            simboloAvversario="X";
-            simboloGiocatore = "O";
-        }
-    }
-
-    public void setSimboloFromNotificaListener(String simbolo){
-        if(simbolo.equals("X")){
-            simboloAvversario="O";
-            simboloGiocatore = "X";
-        }else{
-            simboloAvversario="X";
-            simboloGiocatore = "O";
-        }
-
-        if(simboloGiocatore.equals("X")){
-            button_00.setDisable(false);
-            button_01.setDisable(false);
-            button_02.setDisable(false);
-            button_10.setDisable(false);
-            button_11.setDisable(false);
-            button_12.setDisable(false);
-            button_20.setDisable(false);
-            button_21.setDisable(false);
-            button_22.setDisable(false);
-            isXTurn = true;
-        }
-    }
-
-    public static void setIdPartita(String id){
-        idPartita = id;
-    }
-
-    public static String setThread(Thread notificaThread, NotificaListener notificaListener){
-        notificaThreadHomePage = notificaThread;
-        notificaListenerHomePage = notificaListener;
-        return idPartita;
-    }
-
-    public void goToHomePage() throws IOException{
-        HomePageController.setServerSocket(serverSocket);
-        System.out.println("socket di homePage in matchController: " + HomePageController.serverSocket);
-        App.setRoot("homePage");
-    }
-
-    public void initButton(){
-        Platform.runLater(() -> {
-            button_00.setText("");
-            button_01.setText("");
-            button_02.setText("");
-            button_10.setText("");
-            button_11.setText("");
-            button_12.setText("");
-            button_20.setText("");
-            button_21.setText("");
-            button_22.setText("");
-    
-            if(simboloGiocatore.equals("X")){
-                button_00.setDisable(false);
-                button_01.setDisable(false);
-                button_02.setDisable(false);
-                button_10.setDisable(false);
-                button_11.setDisable(false);
-                button_12.setDisable(false);
-                button_20.setDisable(false);
-                button_21.setDisable(false);
-                button_22.setDisable(false);
-                isXTurn = true;
-            }else{
-                button_00.setDisable(true);
-                button_01.setDisable(true);
-                button_02.setDisable(true);
-                button_10.setDisable(true);
-                button_11.setDisable(true);
-                button_12.setDisable(true);
-                button_20.setDisable(true);
-                button_21.setDisable(true);
-                button_22.setDisable(true);
-                isXTurn = false;
-            }
-        });
-    }
-
-    static public void setServerSocket(String socket) {
-        serverSocket = socket;
-    }
 }
+

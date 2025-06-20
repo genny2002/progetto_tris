@@ -1,9 +1,11 @@
 package com.client.Connessione;
 
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.client.HomePageController;
-import com.client.MatchController;
+import com.client.MainController;
+import com.client.Model.Partita;
 import com.client.Model.Richiesta;
 
 import javafx.application.Platform;
@@ -18,30 +20,17 @@ import java.io.IOException;
 
 public class NotificaListener implements Runnable {
     private Socket socket;
-    private MatchController matchController;
-    private HomePageController homePageController;
+    private MainController mainController;
     private Text statoRichiesta;
     public HBox riga;
 
-    public NotificaListener(Socket socket, MatchController matchController) {
+    public NotificaListener(Socket socket, MainController mainController) {
         this.socket = socket;
-        this.matchController = matchController;
-        this.riga = riga;
-    }
-
-    public NotificaListener(Socket socket, HomePageController homePageController, Text statoRichiesta)
-    {
-        this.socket = socket;
-        this.homePageController = homePageController;
-        this.statoRichiesta = statoRichiesta;
+        this.mainController = mainController;
     }
 
     public void setStatoRichiesta(Text statoRichiesta) {
         this.statoRichiesta = statoRichiesta;
-    }
-
-    public void setMatchController(MatchController matchController) {
-        this.matchController = matchController;
     }
 
     @Override
@@ -51,16 +40,28 @@ public class NotificaListener implements Runnable {
             String message;
 
             while (!Thread.currentThread().isInterrupted() && (message = reader.readLine()) != null) {
-                if(message.contains("abbandonato")){
+                if(message.startsWith("partiteInAttesa:")){
+                    String partiteString = message.substring("partiteInAttesa:".length());
+                    if (partiteString == null || partiteString.isEmpty()) {
+                        System.out.println("Nessuna partita in attesa.");
+                        mainController.partite = new ArrayList<>();
+                    }else{
+                        mainController.partite = Partita.convertToObjects(partiteString);
+                        mainController.showPartiteInAttesa(mainController.partite);
+                    }
+
+        
+                }
+                /*else if(message.contains("abbandonato")){
                     Platform.runLater(() -> {
                         Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setTitle("Partita terminata");
                         alert.setHeaderText("Partita terminata");
                         alert.setContentText("Il tuo avversario ha abbandonato la partita.");
                         alert.setOnCloseRequest(event -> {
-                            if (matchController != null) {
+                            if (mainController != null) {
                                 try {
-                                    matchController.goToHomePage();
+                                    mainController.goToHomePage();
                                 } catch (IOException e) {
                                     System.err.println("Errore durante il ritorno alla home page: " + e.getMessage());
                                 }
@@ -68,7 +69,7 @@ public class NotificaListener implements Runnable {
                         });
                         alert.showAndWait();
                     });
-                }
+                }*/
                 else if(message.startsWith("Richiesta Rematch")){
                     final String finalMessage = message;
                     
@@ -80,19 +81,19 @@ public class NotificaListener implements Runnable {
                         alert.showAndWait();
                     });
                 }
-                else if(message.startsWith("rematch accettato")){
+                /*else if(message.startsWith("rematch accettato")){
                     String[] parts = message.split(":");
                     String simboloGiocatoreAttuale = parts[1].trim();
-                    matchController.setSimboloFromNotificaListener(simboloGiocatoreAttuale);
-                    matchController.setAvvisiLabel();
-                    matchController.initButton();
-                }
-                else if(message.startsWith("rematch rifiutato")){
+                    mainController.setSimboloFromNotificaListener(simboloGiocatoreAttuale);
+                    mainController.setAvvisiLabel();
+                    mainController.initButton();
+                }*/
+                /*else if(message.startsWith("rematch rifiutato")){
                     final String finalMessage = message;
                     
                     Platform.runLater(() -> {
-                        if (matchController != null) {
-                            matchController.closePartitaTerminataAlert();
+                        if (mainController != null) {
+                            mainController.closePartitaTerminataAlert();
                         }
 
                         Alert alert2 = new Alert(AlertType.INFORMATION);
@@ -101,16 +102,16 @@ public class NotificaListener implements Runnable {
                         alert2.setContentText(finalMessage);
                         alert2.showAndWait();
 
-                        if(matchController != null){
+                        if(mainController != null){
                             try {
-                                matchController.goToHomePage();
+                                mainController.goToHomePage();
                             } catch (IOException e) {
                                 System.err.println("Errore durante il ritorno alla home page: " + e.getMessage());
                             }
                         }
                     });
-                }
-                else if(message.startsWith("Richietsa inviata")){
+                }*/
+                /*else if(message.startsWith("Richietsa inviata")){
                     final String finalMessage = message;
                     
                     Platform.runLater(() -> {
@@ -120,13 +121,13 @@ public class NotificaListener implements Runnable {
                         alert.setContentText(finalMessage);
                         alert.showAndWait();
                     });
-                }
+                }*/
                 else if(message.startsWith("partita creata")){
                     String[] parts = message.split(":");
                     String idPartita = parts[1].trim();
 
-                    if(homePageController != null){
-                        homePageController.idNuovaPartita = idPartita;
+                    if(mainController != null){
+                        mainController.idNuovaPartita = idPartita;
                     }
                 }
                 else if(message.startsWith("Broadcast")){
@@ -141,11 +142,11 @@ public class NotificaListener implements Runnable {
                     });
 
                     if(message.contains("ha creato una nuova partita")){
-                        homePageController.initPartiteInAttesa();
+                        mainController.initPartiteInAttesa();
                     }
                 }
                 else if(message.startsWith("Partita terminata")){
-                    matchController.setPartitaTerminata(message);
+                    mainController.setPartitaTerminata(message);
                 }
                 else if(message.startsWith("Mossa eseguita")){
                     int row = (message.charAt(15)) - '0';
@@ -153,7 +154,7 @@ public class NotificaListener implements Runnable {
 
                     System.out.println("Mossa eseguita: " + row + ", " + column);
 
-                    matchController.setMossa(row, column);
+                    mainController.setMossa(row, column);
                 }
                 else if (message.startsWith("Richiesta di partecipazione")) {
                     int separatorIndex = message.lastIndexOf(":");
@@ -162,16 +163,16 @@ public class NotificaListener implements Runnable {
                         String testo = message.substring(0, separatorIndex);
                         String id = message.substring(separatorIndex + 1);
 
-                        matchController.addNuovaRichiesta(new Richiesta(id, testo, "in attesa"));
+                        mainController.addNuovaRichiesta(new Richiesta(id, testo, "in attesa"));
                     }
                 }else{                    
                     if(message.contains("rifiutata")){
-                        if(matchController!=null){
-                            matchController.deleteNotifica();
+                        if(mainController!=null){
+                            mainController.deleteNotifica();
                         }
-                    
-                        if(homePageController != null && statoRichiesta != null){
-                            homePageController.setRichiestaRifiutata(statoRichiesta);
+
+                        if(mainController != null && statoRichiesta != null){
+                            mainController.setRichiestaRifiutata(statoRichiesta);
                         }
                     }else if(message.contains("accettata")){
                         String[] parts = message.split(":");
@@ -180,18 +181,24 @@ public class NotificaListener implements Runnable {
                         String simboloGiocatoreAttuale= parts[3].trim();
                         String idPartita = parts[4].trim();
 
-                        if(homePageController != null){
-                            homePageController.nomeAvversario = nomeAvversario;
+                        if(mainController != null){
+                            mainController.nomeAvversario = nomeAvversario;
+                            mainController.idPartita = idPartita;
+                            if(simboloGiocatoreAttuale.equals("X")){
+                                mainController.simboloAvversario="O";
+                                mainController.simboloGiocatore = "X";
+                            }else{
+                                mainController.simboloAvversario="X";
+                                mainController.simboloGiocatore = "O";
+                            }
 
-                            if(statoRichiesta != null){
-                                homePageController.setRichiestaAccettata(statoRichiesta, simboloGiocatoreAttuale, idPartita);
-                            }   
-                        }
-
-                        if(matchController != null){
-                            matchController.setNomeAvversario(nomeAvversario);
-                            matchController.setAvvisiLabel();
-                            matchController.setSimboloFromNotificaListener(simboloGiocatoreAttuale);
+                            Platform.runLater(() -> {
+                                try {
+                                    mainController.setRichiestaAccettata(statoRichiesta, simboloGiocatoreAttuale, idPartita);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            });   
                         }
                     }
                 }

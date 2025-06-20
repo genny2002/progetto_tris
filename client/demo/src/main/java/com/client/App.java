@@ -22,11 +22,8 @@ public class App extends Application {
         stage.setOnCloseRequest((WindowEvent event) -> {
             try {
                 // Prova a inviare il logout se sei loggato
-                if (HomePageController.connessione != null && HomePageController.serverSocket != null) {
-                    HomePageController.connessione.sendRequest(HomePageController.connessione.clientSocket, "logout:" + HomePageController.serverSocket);
-                }
-                if (MatchController.connessione != null && MatchController.serverSocket != null) {
-                    MatchController.connessione.sendRequest(MatchController.connessione.clientSocket, "logout:" + MatchController.serverSocket);
+                if (MainController.connessione != null && MainController.serverSocket != null) {
+                    MainController.connessione.sendRequest(MainController.connessione.clientSocket, "logout:" + MainController.serverSocket);
                 }
             } catch (Exception e) {
                 // Ignora errori se la connessione non è attiva

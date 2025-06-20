@@ -36,7 +36,7 @@ char *getPartiteInAttesa(partita_t *partite, int socketCreatore) {
         return "Errore di allocazione memoria\n";
     }
 
-    partiteInAttesa[0] = '\0';
+    strcpy(partiteInAttesa, "partiteInAttesa:");
 
     for (int i = 0; i < MAX_PARTITE; i++) {
         if(strcmp(partite[i].stato, "in_attesa") == 0) {
