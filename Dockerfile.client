@@ -2,23 +2,37 @@ FROM openjdk:17-slim
 
 WORKDIR /client
 
+# Installazione delle dipendenze necessarie
 RUN apt-get update && apt-get install -y \
     wget unzip \
     libgtk-3-0 libx11-xcb1 libxcb-render0 libxcb-shape0 libxcb-xfixes0 \
     libxrandr2 libasound2 libpangocairo-1.0-0 libatk1.0-0 libcups2 libxcomposite1 \
     libxdamage1 libxext6 libxtst6 libnss3 libgl1-mesa-glx libgl1-mesa-dri \
-    && wget https://download2.gluonhq.com/openjfx/17.0.2/openjfx-17.0.2_linux-x64_bin-sdk.zip && \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Scarica e configura JavaFX
+RUN wget https://download2.gluonhq.com/openjfx/17.0.2/openjfx-17.0.2_linux-x64_bin-sdk.zip && \
     unzip openjfx-17.0.2_linux-x64_bin-sdk.zip -d /opt && \
-    rm openjfx-17.0.2_linux-x64_bin-sdk.zip && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    rm openjfx-17.0.2_linux-x64_bin-sdk.zip
 
 ENV PATH_TO_FX=/opt/javafx-sdk-17.0.2/lib
 ENV JAVA_LIBRARY_PATH=/opt/javafx-sdk-17.0.2/lib
 
-COPY client/main/src/main/resources/ client/main/src/main/resources/
-COPY client/main/src/main/java/ client/main/src/main/java/
+# Copia il codice sorgente dell'applicazione
+COPY client/demo/src/main/resources/ client/main/src/main/resources/
+COPY client/demo/src/main/java/ client/main/src/main/java/
 
-RUN javac --module-path $PATH_TO_FX --add-modules javafx.controls,javafx.fxml client/main/src/main/java/com/client/App.java
+# Compilazione del codice sorgente
+RUN find client/main/src/main/java -name "*.java" > sources.txt && \
+    javac --module-path $PATH_TO_FX --add-modules javafx.controls,javafx.fxml @sources.txt
 
+# Imposta la variabile DISPLAY come vuota per il supporto X11
+#ENV DISPLAY=
+
+RUN useradd -m -u 1000 gennaro
+USER gennaro
+ENV HOME=/home/gennaro
+
+# Comando per eseguire l'applicazione
 CMD ["java", "--module-path", "/opt/javafx-sdk-17.0.2/lib", "--add-modules", "javafx.controls,javafx.fxml", "-Djava.library.path=/opt/javafx-sdk-17.0.2/lib", "-cp", "client/main/src/main/java", "com.client.App"]
 
