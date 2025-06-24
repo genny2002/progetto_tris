@@ -199,7 +199,10 @@ public class MainController {
     }
 
     public void initPartiteInAttesa() {
-        partite_list.getItems().clear();
+        Platform.runLater(() -> {
+            partite_list.getItems().clear();
+        });
+
         connessione.sendRequest(connessione.clientSocket, "Partita:getPartiteInAttesa:");
     }
 
@@ -213,6 +216,7 @@ public class MainController {
 
             partecipaButton.setOnAction(e -> {
                 statoRichiesta.setText("richiesta in attesa");
+                partecipaButton.setDisable(true);
                 partecipaAPartita(partita.getId(), statoRichiesta);       
             });
 
@@ -311,7 +315,6 @@ public class MainController {
     }
 
     public void setHomePageControllerVisible(){
-        //partite_list.getItems().clear();
         initPartiteInAttesa();
         creaNuovaPartita_button.setVisible(true);
         partite_list.setVisible(true);
@@ -336,7 +339,7 @@ public class MainController {
 
     @FXML
     private void handleClickLogoutButton() throws IOException {
-        // Qui puoi aggiungere la logica per il logout, ad esempio tornare alla schermata di login
+        connessione.sendRequest(connessione.clientSocket, "logout:" + serverSocket);
         App.setRoot("login");
     }
 
@@ -391,7 +394,6 @@ public class MainController {
             button_20.setDisable(true);
             button_21.setDisable(true);
             button_22.setDisable(true);
-            // Logica per gestire il rematch
         });
     }
 

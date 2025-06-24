@@ -21,12 +21,11 @@ public class App extends Application {
 
         stage.setOnCloseRequest((WindowEvent event) -> {
             try {
-                // Prova a inviare il logout se sei loggato
                 if (MainController.connessione != null && MainController.serverSocket != null) {
                     MainController.connessione.sendRequest(MainController.connessione.clientSocket, "logout:" + MainController.serverSocket);
                 }
             } catch (Exception e) {
-                // Ignora errori se la connessione non è attiva
+            
             }
         });
 

@@ -1,6 +1,6 @@
 #include "richiesta.h"
 
-char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, coda_t *richieste) {
+char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, coda_t *richieste, int sockets[], int numero_sockets) {
     char nomeFunzione[50]={0}; 
     char attributi[150]={0};
     char *response;
@@ -11,7 +11,7 @@ char *richiestaParser(char *buffer, partita_t *partite, int socketGiocatore, cod
 
     if(strcmp(nomeFunzione, "putSendRequest") == 0) response=putSendRequest(partite, attributi, socketGiocatore, richieste);
     else if (strcmp(nomeFunzione, "deleteRifiutaRichiesta") == 0) response = deleteRifiutaRichiesta(attributi, richieste);
-    else if (strcmp(nomeFunzione, "putAccettaRichiesta")==0) response = putAccettaRichiesta(attributi, richieste, partite);
+    else if (strcmp(nomeFunzione, "putAccettaRichiesta")==0) response = putAccettaRichiesta(attributi, richieste, partite, sockets, numero_sockets);
     else return "Comando non riconosciuto\n";
 
     return response;
@@ -105,7 +105,7 @@ char *deleteRifiutaRichiesta(char *attributi, coda_t *richieste) {
     return response;
 }
 
-char *putAccettaRichiesta(char *attributi, coda_t *richieste, partita_t *partite) {
+char *putAccettaRichiesta(char *attributi, coda_t *richieste, partita_t *partite, int sockets[], int numero_sockets) {
     int idRichiesta;
     richiesta_t richiesta;
     int foundIndex = -1;
@@ -147,6 +147,9 @@ char *putAccettaRichiesta(char *attributi, coda_t *richieste, partita_t *partite
             partite[idPartita].simboloCreatore = 'X';
         }
 
+        sprintf(response, "%s e %s hanno iniziato la partita %d\n", richiesta.nomeCreatore, richiesta.nomeGiocatore, idPartita);
+        send_in_broadcast(sockets, numero_sockets, response, richiesta.socketCreatore,  richiesta.socketGiocatore);
+
     }
 
     deleteEliminaRichiesteByPartitaId(richieste, richiesta.idPartita);
@@ -161,7 +164,7 @@ char *putAccettaRichiesta(char *attributi, coda_t *richieste, partita_t *partite
     sprintf(response, "la richiesta %d è stata accettata:%d:%s:%c:%d\n", idRichiesta, idRichiesta, richiesta.nomeCreatore, partite[richiesta.idPartita].simboloGiocatore, richiesta.idPartita);
     send(richiesta.socketGiocatore, response, strlen(response), 0);
     printf("Message sent: %s alla socket %d\n", response, richiesta.socketGiocatore);
-
+    
     return response;
 }
 

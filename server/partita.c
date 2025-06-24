@@ -215,7 +215,6 @@ char *putRematch(char *attributi, partita_t *partite, coda_t *richieste) {
         printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketGiocatore);
         partite[idPartita].socketCreatore = -1;
         partite[idPartita].socketGiocatore = -1;
-        //eliminaRichiestaByPartitaId(idPartita, richieste);
     }else if(partite[idPartita].rematchCreatore==1 && partite[idPartita].rematchGiocatore==1){
         srand(time(NULL));
         strcpy(partite[idPartita].stato, "in_corso");
@@ -255,39 +254,6 @@ char *putRematch(char *attributi, partita_t *partite, coda_t *richieste) {
 
     return response;
 }
-
-/*void eliminaRichiestaByPartitaId(int idPartita, coda_t* coda) {
-    if (isCodaVuota(coda)) {
-        printf("La coda è vuota. Nessuna richiesta da eliminare.\n");
-        return;
-    }
-
-    coda_t tempQueue;
-    inizializzaCoda(&tempQueue);
-
-    int found = 0;
-
-    // Esamina ogni elemento nella coda originale
-    for (int i = 0; i < coda->size; i++) {
-        int currentIndex = (coda->front + i) % MAX_QUEUE_SIZE;
-
-        if (coda->queue[currentIndex].idPartita == idPartita) {
-            found = 1;
-        } else {
-            tempQueue.queue[(tempQueue.rear + 1) % MAX_QUEUE_SIZE] = coda->queue[currentIndex];
-            tempQueue.rear = (tempQueue.rear + 1) % MAX_QUEUE_SIZE;
-            tempQueue.size++;
-        }
-    }
-
-    if (found) {
-        printf("Richiesta con idPartita %d eliminata.\n", idPartita);
-    } else {
-        printf("Richiesta con idPartita %d non trovata.\n", idPartita);
-    }
-
-    *coda = tempQueue;
-}*/
 
 void freePartite(partita_t *partite, int socket) {
     for (int i = 0; i < MAX_PARTITE; i++) {

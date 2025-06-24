@@ -2,7 +2,6 @@ package com.client.Connessione;
 
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.client.MainController;
 import com.client.Model.Partita;
@@ -52,7 +51,7 @@ public class NotificaListener implements Runnable {
 
         
                 }
-                /*else if(message.contains("abbandonato")){
+                else if(message.contains("abbandonato")){
                     Platform.runLater(() -> {
                         Alert alert = new Alert(AlertType.INFORMATION);
                         alert.setTitle("Partita terminata");
@@ -60,16 +59,13 @@ public class NotificaListener implements Runnable {
                         alert.setContentText("Il tuo avversario ha abbandonato la partita.");
                         alert.setOnCloseRequest(event -> {
                             if (mainController != null) {
-                                try {
-                                    mainController.goToHomePage();
-                                } catch (IOException e) {
-                                    System.err.println("Errore durante il ritorno alla home page: " + e.getMessage());
-                                }
+                                mainController.setHomePageControllerVisible();
+                                mainController.setRematch();
                             }
                         });
                         alert.showAndWait();
                     });
-                }*/
+                }
                 else if(message.startsWith("Richiesta Rematch")){
                     final String finalMessage = message;
                     
@@ -124,17 +120,6 @@ public class NotificaListener implements Runnable {
                         }
                     });
                 }
-                /*else if(message.startsWith("Richietsa inviata")){
-                    final String finalMessage = message;
-                    
-                    Platform.runLater(() -> {
-                        Alert alert = new Alert(AlertType.INFORMATION);
-                        alert.setTitle("Broadcast");
-                        alert.setHeaderText("Messaggio di sistema");
-                        alert.setContentText(finalMessage);
-                        alert.showAndWait();
-                    });
-                }*/
                 else if(message.startsWith("partita creata")){
                     String[] parts = message.split(":");
                     String idPartita = parts[1].trim();
@@ -154,7 +139,7 @@ public class NotificaListener implements Runnable {
                         alert.showAndWait();
                     });
 
-                    if(message.contains("ha creato una nuova partita")){
+                    if(message.contains("ha creato una nuova partita") || message.contains("hanno iniziato la partita")){
                         mainController.initPartiteInAttesa();
                     }
                 }

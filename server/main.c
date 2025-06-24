@@ -119,7 +119,7 @@ void* process(void * ptr){
         }else if(strstr(buffer, "Richiesta")!=NULL){
             pthread_mutex_lock(&mutex_partite);
             pthread_mutex_lock(&mutex_richieste);
-            msg=richiestaParser(buffer, partite, socket, &richieste);
+            msg=richiestaParser(buffer, partite, socket, &richieste, sockets, numero_sockets);
             pthread_mutex_unlock(&mutex_richieste);
             pthread_mutex_unlock(&mutex_partite);
         }else if (strncmp(buffer, "logout:", 7) == 0) {
@@ -154,7 +154,7 @@ void* process(void * ptr){
             close(logout_socket);
 
             printf("la socket %d e' stata chiusa\n", logout_socket);
-            printf("socket all'inizio del logout:\n");
+            printf("socket alla fine del logout:\n");
             for(int i = 0; i < numero_sockets; i++) {
                 printf("socket[%d]: %d\n", i, sockets[i]);
             }
