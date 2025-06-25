@@ -1,11 +1,8 @@
-com/client/SecondaryController.class
 com/client/Model/Richiesta.class
-com/client/Model/Partita.class
-com/client/PrimaryController.class
-com/client/Connessione/Connessione.class
-com/client/HomePageController.class
-com/client/App.class
-com/client/MatchController.class
 module-info.class
+com/client/Model/Partita.class
 com/client/Connessione/NotificaListener.class
+com/client/Connessione/Connessione.class
+com/client/MainController.class
 com/client/LoginController.class
+com/client/App.class

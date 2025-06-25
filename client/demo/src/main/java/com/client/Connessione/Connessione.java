@@ -13,7 +13,8 @@ public class Connessione {
 
     public Connessione() {
         Socket socket = null;
-        String serverAddress = "127.0.0.1";
+        String serverAddress = System.getenv("SERVER_ADDRESS") != null ? 
+                               System.getenv("SERVER_ADDRESS") : "server";
         int port = 5050;
 
         try {
