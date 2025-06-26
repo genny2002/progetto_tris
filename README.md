@@ -59,3 +59,7 @@ Questo progetto implementa un'applicazione client-server containerizzata utilizz
     --network host \
     progetto_tris-client
    ```
+
+## Autori 
+- Fabrizio Quaranta (N86004300)
+- Gennaro Nappp (N86004294)
