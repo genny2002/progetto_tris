@@ -39,7 +39,11 @@ public class NotificaListener implements Runnable {
             String message;
 
             while (!Thread.currentThread().isInterrupted() && (message = reader.readLine()) != null) {
-                if(message.startsWith("partiteInAttesa:")){
+                if(message.startsWith("logout:")){
+                    String nomeGiocatore = message.substring("logout:".length());
+                    mainController.updatePartiteInAttesa(nomeGiocatore);
+                    mainController.updateRichieste(nomeGiocatore);
+                }else if(message.startsWith("partiteInAttesa:")){
                     String partiteString = message.substring("partiteInAttesa:".length());
                     if (partiteString == null || partiteString.isEmpty()) {
                         System.out.println("Nessuna partita in attesa.");
@@ -48,8 +52,6 @@ public class NotificaListener implements Runnable {
                         mainController.partite = Partita.convertToObjects(partiteString);
                         Platform.runLater(() -> mainController.showPartiteInAttesa(mainController.partite));
                     }
-
-        
                 }
                 else if(message.contains("abbandonato")){
                     Platform.runLater(() -> {

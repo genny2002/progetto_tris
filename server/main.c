@@ -23,7 +23,7 @@ pthread_mutex_t mutex_sockets;
 void* process(void * ptr);
 
 int main() {
-    printf("Server started...\n");
+    printf("Server started... v 1.0\n");
     inizializza_partite(partite);
     inizializzaCoda(&richieste);
 
@@ -128,8 +128,13 @@ void* process(void * ptr){
                 printf("socket[%d]: %d\n", i, sockets[i]);
             }
 
-            int logout_socket = atoi(buffer + 7);
-            // Cerca la socket nell'array e rimuovila
+            int logout_socket = 0;
+            char nome_giocatore[128] = {0};
+
+            sscanf(buffer + 7, "%d,%127[^\n,]", &logout_socket, nome_giocatore);
+            printf("Logout socket: %d, nome giocatore: %s\n", logout_socket, nome_giocatore);
+
+            // Cerca la socket nell'array e la rimuove
             pthread_mutex_lock(&mutex_sockets);
             for (int i = 0; i < numero_sockets; i++) {
                 if (sockets[i] == logout_socket) {
@@ -152,6 +157,14 @@ void* process(void * ptr){
             freePartite(partite, logout_socket);
             pthread_mutex_unlock(&mutex_partite);
             close(logout_socket);
+
+            char buffer[1024];
+            sprintf(buffer, "logout:%s\n", nome_giocatore);
+
+            for (int i = 0; i < numero_sockets; i++) {
+                send(sockets[i], buffer, strlen(buffer), 0);
+                printf("Inviato a socket %d: %s", sockets[i], buffer);
+            }
 
             printf("la socket %d e' stata chiusa\n", logout_socket);
             printf("socket alla fine del logout:\n");

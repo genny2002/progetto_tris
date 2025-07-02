@@ -48,7 +48,6 @@ char *putSendRequest(partita_t *partite, char *attributi, int socketGiocatore, c
     char *response = malloc(256);
 
     sprintf(response, "Richiesta inviata");
-    send(socketGiocatore, response, strlen(response), 0);
 
     return response;
 }

@@ -56,7 +56,7 @@ char *getPartiteInAttesa(partita_t *partite, int socketCreatore) {
 
 char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore, int sockets[], int numero_sockets) {
     for (int i = 0; i < MAX_PARTITE; i++) {
-        if(strcmp(partite[i].stato, "nuova_creazione") == 0 || strcmp(partite[i].stato, "terminata") == 0) {
+        if(strcmp(partite[i].stato, "nuova_creazione") == 0) {
             strcpy(partite[i].nomeCreatore, nomeGiocatore);
             strcpy(partite[i].stato, "in_attesa");
             partite[i].socketCreatore = socketCreatore;
@@ -86,7 +86,6 @@ char *putCreaPartita(partita_t *partite, char *nomeGiocatore, int socketCreatore
 }
 
 char *putMove(partita_t *partite, char *attributi, int sockets[], int numero_sockets) {
-    printf("sono in putMove\n");
     int idPartita;
     int row, col;
     char simbolo;
@@ -186,7 +185,6 @@ void send_in_broadcast(int sockets[], int numero_sockets, char *message, int soc
         if(sockets[i] != socket1 && sockets[i] != socket2) {
             send(sockets[i], buffer, strlen(buffer), 0);
         }
-        
     }
 
     printf("Broadcast message sent in broadcast: %s\n", buffer);
@@ -215,6 +213,7 @@ char *putRematch(char *attributi, partita_t *partite, coda_t *richieste) {
         printf("Message sent: %s alla socket %d\n", response, partite[idPartita].socketGiocatore);
         partite[idPartita].socketCreatore = -1;
         partite[idPartita].socketGiocatore = -1;
+        strcpy(partite[idPartita].stato, "nuova_creazione");
     }else if(partite[idPartita].rematchCreatore==1 && partite[idPartita].rematchGiocatore==1){
         srand(time(NULL));
         strcpy(partite[idPartita].stato, "in_corso");

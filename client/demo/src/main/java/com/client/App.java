@@ -22,7 +22,7 @@ public class App extends Application {
         stage.setOnCloseRequest((WindowEvent event) -> {
             try {
                 if (MainController.connessione != null && MainController.serverSocket != null) {
-                    MainController.connessione.sendRequest(MainController.connessione.clientSocket, "logout:" + MainController.serverSocket);
+                    MainController.connessione.sendRequest(MainController.connessione.clientSocket, "logout:" + MainController.serverSocket + "," + MainController.nomeGiocatore);
                 }
             } catch (Exception e) {
             

@@ -35,11 +35,11 @@ public class MainController {
     @FXML private Button button_21;
     @FXML private Button button_22;
     @FXML private ListView<HBox> notifiche_list;
-    @FXML private ListView<HBox> partite_list;
+    @FXML public ListView<HBox> partite_list;
     @FXML private Button creaNuovaPartita_button;
     @FXML private GridPane gridPane;
 
-    private static String nomeGiocatore;
+    public static String nomeGiocatore;
     public static Connessione connessione;
     public static String serverSocket;
     private Thread notificaThreadHomePage;
@@ -339,7 +339,7 @@ public class MainController {
 
     @FXML
     private void handleClickLogoutButton() throws IOException {
-        connessione.sendRequest(connessione.clientSocket, "logout:" + serverSocket);
+        connessione.sendRequest(connessione.clientSocket, "logout:" + serverSocket + "," + nomeGiocatore);
         App.setRoot("login");
     }
 
@@ -402,6 +402,28 @@ public class MainController {
             if (partitaTerminataAlert != null) {
                 partitaTerminataAlert.close();
                 partitaTerminataAlert = null;
+            }
+        });
+    }
+
+    public void updateRichieste(String nomeGiocatore) {
+        Platform.runLater(() -> {
+            for (HBox riga : notifiche_list.getItems()) {
+                Text testoRichiesta = (Text) riga.getChildren().get(0);
+                if (testoRichiesta.getText().contains(nomeGiocatore)) {
+                    riga.getChildren().clear();
+                }
+            }
+        });
+    }
+
+    public void updatePartiteInAttesa(String nomeGiocatore) {
+        Platform.runLater(() -> {
+            for (HBox riga : partite_list.getItems()) {
+                Text nomeCreatore = (Text) riga.getChildren().get(1);
+                if (nomeCreatore.getText().contains(nomeGiocatore)) {
+                    riga.getChildren().clear();
+                }
             }
         });
     }

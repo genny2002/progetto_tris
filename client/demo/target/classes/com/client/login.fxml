@@ -10,5 +10,6 @@
       <Label layoutX="69.0" layoutY="213.0" prefHeight="42.0" prefWidth="204.0" text="Benvenuto, inserisci il tuo nome:" />
       <TextField id="name_textField" fx:id="name_textField" layoutX="273.0" layoutY="221.0" prefHeight="26.0" prefWidth="299.0" />
       <Button id="invia_button" fx:id="invia_button" layoutX="291.0" layoutY="255.0" mnemonicParsing="false" onAction="#handleClickInviaButton" text="INVIA" />
+      <Label id="versione_label" fx:id="versione_label" layoutX="593.0" layoutY="457.0" text="Label" />
    </children>
 </AnchorPane>

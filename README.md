@@ -46,11 +46,23 @@ Questo progetto implementa un'applicazione client-server containerizzata utilizz
 1) Estrarre i file scaricati
 2) Aprire il terminale
 3) Aprire la directory con i file usando il comando cd
-4) Avviare il server e un client con il seguente comando:
+4) Eseguire il seguente comando:
+   ```
+   docker build --no-cache -f Dockerfile.server -t progetto_tris-server .
+   ```
+5) Eseguire il seguente comando:
+   ```
+   docker build --no-cache -f Dockerfile.client -t progetto_tris-client .
+   ```
+6) Eseguire il seguente comando:
+   ```
+   xhost +local:docker
+   ```
+7) Avviare il server e un client con il seguente comando:
    ```
    docker-compose up --build
    ```
-6) Avviare un nuovo client con il seguente comando:
+8) Avviare un nuovo client con il seguente comando in un nuovo terminale:
    ```
    docker run -it --rm \
     -e DISPLAY=$DISPLAY \
